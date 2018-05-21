@@ -89,7 +89,7 @@ The following endpoints are available:
 * Endpoint (development): `https://dev.api.marketprotocol.io`
 * Endpoint (production): `https://api.marketprotocol.io`
 
-`/contracts/whitelist`
+### `/contracts/whitelist`
 * Add to Whitelist, reference `MarketContractRegistry.sol`. The address is the contract to be whitelisted.
 * Response: `200`, `400`, `500`, or `502`, along with additional data.
 ```
@@ -101,14 +101,14 @@ Content-Type: application/json
 }
 ```
 
-`/contracts/whitelist`
+### `/contracts/whitelist`
 * Get Whitelist, reference `MarketContractRegistry.sol`.
 * Response: `200`, `500`, or `502`, along with additional data.
 ```
 GET /contracts/whitelist HTTP/1.1
 ```
 
-`/proxy/binance/*`
+### `/proxy/binance/*`
 * Supports path and query parameter pass through. In this case, `api/v3/ticker/price` is used to call Binance. 
 * Response: `200`, `400`, `500`, or `502`, along with additional data.
 ```
