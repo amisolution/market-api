@@ -1,69 +1,60 @@
-# makefile for whitelist-api
+# makefile for marketapi
 #
-PROVIDER=aws
-AWS_REGION=us-east-1
-STAGE=dev
-
-install:
-	npm install
-	npm install -g serverless
-
-# configure credentials
-#   a. with serverless via 'serverless config credentials'
-#   b. with aws-cli via 'aws configure'
-#   c. with an existing AWS profile via 'export AWS_PROFILE="profilename"'
-#   d. with deploy via 'serverless deploy --aws-profile profilename'
-#   e. using per stage profiles
-#
-# e.g.
-#  config_creds:
-#	serverless config credentials -p $(PROVIDER) -k ${AWS_KEY} -s ${AWS_SECRET}
-# or, alternately, for local development...
-#   set the environment variable 'AWS_PROFILE'
-#   store the approriate credentials using the aws cli or in ~/.ec2/credentials
+NODE_REQUIRED=v8.10.0
+NODE_INSTALLED := $(shell node --version)
+OS_PLATFORM := $(shell uname -s)
 
 
-## status
-
-# deployment info
-info:
-	serverless info -v -s $(STAGE) -r $(AWS_REGION) 
-
-# display deployments
-list:
-	serverless deploy list -s $(STAGE) -r $(AWS_REGION) 
+## default
+noop:
+	@echo "No action specified!" &2> /dev/null 
 
 
-## packaging and deployment
+## install
+install_dev:
+ifneq ($(NODE_INSTALLED),$(NODE_REQUIRED))
+	@echo "Node version should be v8.10.0, you have ==>" $(NODE_INSTALLED)
+	@echo "nvm might be useful, https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/"
+else
+	npm run install-dev
+endif
 
-# package
-package:
-	serverless -s $(STAGE) -r $(AWS_REGION) package
+install_prod:
+ifneq ($(NODE_INSTALLED),$(NODE_REQUIRED))
+	@echo "Node version should be v8.10.0, you have ==>" $(NODE_INSTALLED)
+	@echo "nvm might be useful, https://www.sitepoint.com/quick-tip-multiple-versions-node-nvm/"
+else
+	npm run install-prod
+endif
 
-# deploy: verbose w/ some specific options
-deploy:
-	serverless -v -s $(STAGE) -r $(AWS_REGION) deploy 
 
-# deploy a specific function (e.g. create)
-deploy_create:
-	serverless -v -s $(STAGE) -r $(AWS_REGION) -f create deploy 
+## build
+buildzip_on_macos:
+	npm run buildzip-macos
 
-# remove deployed service
-remove:
-	serverless -s $(STAGE) -r $(AWS_REGION) remove
+buildzip_on_ubuntu:
+	#npm run buildzip-ubuntu
+
+
+## deploy
+deployfrom_macos: install_prod buildzip_macos
+	sam package --template-file template-aws.yaml --s3-bucket jordanjr --output-template-file packaged.yaml
+	sam deploy --template-file ./packaged.yaml --stack-name mystack --capabilities CAPABILITY_IAM
+
+deployfrom_ubuntu: install_prod buildzip_ubuntu
+	#npm run buildzip-ubuntu
+	#sam package --template-file template-aws.yaml --s3-bucket jordanjr --output-template-file packaged.yaml
+	#sam deploy --template-file ./packaged.yaml --stack-name mystack --capabilities CAPABILITY_IAM
 
 
 ## testing
+test_setup:
+	npm run testsetup
 
-# invoke a specific function
-invoke_create:
-	serverless -s $(STAGE) -r $(AWS_REGION) -f create invoke
+test_macos:
+	@echo "Setting up test environment for Darwin ===>" $(OS_PLATFORM)
+	npm run test-macos
 
-# watch logs on a specific function
-logs_create:
-	serverless -s $(STAGE) -r $(AWS_REGION) -f create logs
-
-# metrics
-metrics:
-	serverless -s $(STAGE) -r $(AWS_REGION) metrics
-
+test_ubuntu:
+	#@echo "Setting up test environment for Linux ===>" $(OS_PLATFORM)
+	#npm run test-ubuntu

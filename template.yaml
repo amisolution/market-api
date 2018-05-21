@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: MARKET Lambda functions.
+
+Globals:
+  Function:
+    Runtime: nodejs8.10
+    CodeUri: src/
+
+Resources:
+  MarketApiDev:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      DefinitionUri: swagger/market-api-dev.yaml
+
+  HelloWorld:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: test.hello
+      Description: Hello world AWS Lambda function.
+      MemorySize: 128
+      Timeout: 3
+
+  WhitelistGet:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: whitelist.get
+      Description: Get all whilelisted contracts.
+      MemorySize: 1024
+      Timeout: 10
+      Events:
+        WhitelistGetApi:
+          Type: Api
+          Properties:
+            Path: /whitelist
+            Method: get
+      Environment:
+        Variables:
+          CONTRACT_ADDRESS: '0x06e28E90107e015f12DAE4F2FF0C6750eF225620'
+          GAS_LIMIT: '100000'
+          GAS_PRICE: '20000000000'
+          OWNER_ADDRESS: '0x8a6C7Ea2C27827093825e5FdD57BD564312c6a2c'
+          OWNER_PRIVKEY: '0xe9b5f3cb040c1026843d620e2a8c3e2f00d03b0e721730fa56aa225e0592971b'
+          PROVIDER_URL: 'https://rinkeby.infura.io/cbHh1p8RT4Q6E97F4gVi'
+
+  WhitelistAdd:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: whitelist.add
+      Description: Add a whilelisted contract.
+      MemorySize: 1024
+      Timeout: 60
+      Events:
+        WhitelistAddApi:
+          Type: Api
+          Properties:
+            Path: /whitelist
+            Method: post
+      Environment:
+        Variables:
+          CONTRACT_ADDRESS: '0x06e28E90107e015f12DAE4F2FF0C6750eF225620'
+          GAS_LIMIT: '100000'
+          GAS_PRICE: '20000000000'
+          OWNER_ADDRESS: '0x8a6C7Ea2C27827093825e5FdD57BD564312c6a2c'
+          OWNER_PRIVKEY: '0xe9b5f3cb040c1026843d620e2a8c3e2f00d03b0e721730fa56aa225e0592971b'
+          PROVIDER_URL: 'https://rinkeby.infura.io/cbHh1p8RT4Q6E97F4gVi'
+
+  ProxyAll:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: proxy.proxyAll
+      Description: Proxy for external APIs.
+      MemorySize: 1024
+      Timeout: 60
+      Events:
+        ProxyBinanceApi:
+          Type: Api
+          Properties:
+            Path: /proxy/{entity}/{proxy+}
+            Method: get

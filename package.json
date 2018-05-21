@@ -1,20 +1,53 @@
 {
-  "name": "market-whitelist-api",
-  "version": "1.0.0",
-  "description": "",
-  "author": "",
-  "license": "MIT",
+  "name": "marketapi",
+  "version": "0.0.2",
+  "description": "Serverless API for interacting with MARKET Protocol",
+  "keywords": [
+    "MARKET Protocol",
+    "ethereum",
+    "blockchain",
+    "dApp",
+    "trading",
+    "derivatives",
+    "decentralized",
+    "decentralized exchange",
+    "exchange"
+  ],
+  "author": "Robert Jordan <robert@marketprotocol.io>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MARKETProtocol/backend.git"
+  },
+  "engines": {
+    "node": "8.10.0"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MARKETProtocol/backend/issues"
+  },
+  "homepage": "https://marketprotocol.io",
+  "scripts": {
+    "buildzip-macos": "cd src && BUILD_DATE=`date \"+%Y%m%d-%H%M%S\"` && zip -rq ../build/market-api-$BUILD_DATE * && sed -i \"\" -e \"s/CodeUri:.*/CodeUri: build\\/market-api-$BUILD_DATE.zip/g\" ../template-aws.yaml",
+    "buildzip-ubuntu": "",
+    "clean": "rm -rf node_modules/ src/node_modules/",
+    "clean-prep": "rm -rf node_modules/ src/node_modules/ && mkdir node_modules src/node_modules",
+    "install-dev": "npm run clean-prep && npm install --python=python2.7 && npm run modules-lambda && cp -a node_modules/* src/node_modules/",
+    "install-prod": "npm run clean-prep && npm install --python=python2.7 --only=production && npm run modules-lambda && cp -a node_modules/* src/node_modules/",
+    "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
+    "modules-ubuntu": "cp -a modules/scrypt/build/Release/ubuntu/* node_modules/scrypt/build/Release/",
+    "modules-macos": "cp -a modules/scrypt/build/Release/macos/* node_modules/scrypt/build/Release/",
+    "test-ubuntu": "npm run modules-ubuntu && mocha **/*.tests.js && npm run modules-lambda",
+    "test-macos": "npm run modules-macos && mocha **/*.tests.js && npm run modules-lambda",
+    "test-setup": "cp .dev-env .env"
+  },
   "dependencies": {
-    "uuid": "^2.0.3",
-    "web3": "^1.0.0-beta.30"
+    "axios": "^0.18.0",
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
-    "aws-sdk": "^2.226.1",
     "chai": "^4.1.2",
-    "chai-http": "^3.0.0",
-    "mocha": "^5.1.1"
-  },
-  "scripts": {
-    "test": "mocha ./test/*.test.js"
+    "chai-http": "^4.0.0",
+    "dotenv": "^5.0.1",
+    "mocha": "^5.2.0"
   }
 }
