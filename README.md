@@ -56,10 +56,17 @@ This will install the CLI globally at `/usr/local/bin`.
 
 #### AWS SAM CLI Installation Troubleshooting
 
-1. Install the CLI using [PIP](https://pip.pypa.io/en/stable/installing/). Please note, the [npm AWS SAM CLI](https://www.npmjs.com/package/aws-sam-local) only supports CLI version `0.2.11` and below of the CLI. You must use PIP to install CLI version `0.3.x`. To uninstall version `0.2.x`, `npm uninstall -g aws-sam-local`.
+1. Install the CLI using [PIP](https://pip.pypa.io/en/stable/installing/). Please note, the [npm AWS SAM CLI](https://www.npmjs.com/package/aws-sam-local) only supports CLI version `0.2.11` and below of the CLI. You must use PIP to install CLI version `0.3.x`. To uninstall version `0.2.x`, 
+```
+$ npm uninstall -g aws-sam-local
+```
 2. Check your default Python version. It should be `2.7.x`. The CLI installation is only compatible with Python2.
-3. Try `sam --version` then `sam local --help`. If you get an error such as, `Unable to import 'samcli.commands.local.local'`, uninstall the CLI, `pip uninstall aws-sam-cli` then reinstall it using `pip2.7 install aws-sam-cli`. This forces the use of the `2.7.x` version of PIP.
-4. At this point, `sam local --help` should work and give you the correct text.
+3. Try `sam --version` then `sam local --help`. If you get an error such as, `Unable to import 'samcli.commands.local.local'`, uninstall the CLI then reinstall it. This forces the use of the `2.7.x` version of PIP.
+```
+$ pip uninstall aws-sam-cli
+$ pip2.7 install aws-sam-cli
+```
+4. At this point, `sam local --help` should work and give you the correct output.
 
 ### Test the AWS SAM CLI
 Make sure docker is running.
@@ -79,6 +86,11 @@ If you see `"Hello MARKET"` at the bottom of the response, you're ready to go!
 
 ## Developer's Guide
 
+### Using Vagrant
+- Install Vagrant
+- Install Virtualbox
+- Customize the Vagrantfile & bootstrap_final.sh
+
 
 ## Deployment
 
@@ -86,8 +98,8 @@ If you see `"Hello MARKET"` at the bottom of the response, you're ready to go!
 ## HTTP methods
 The following endpoints are available:
 
-* Endpoint (development): `https://dev.api.marketprotocol.io`
-* Endpoint (production): `https://api.marketprotocol.io`
+* Development: `https://dev.api.marketprotocol.io`
+* Production: `https://api.marketprotocol.io`
 
 ### `/contracts/whitelist`
 * Add to Whitelist, reference `MarketContractRegistry.sol`. The address is the contract to be whitelisted.
