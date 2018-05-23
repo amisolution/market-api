@@ -123,6 +123,26 @@ When running unit tests, the Node scripts will install the correct files to run 
 the SAM CLI, you'll be using the `scrypt` files specifically for the Lamdba Execution Environment. This  
 ensures compatibility once you upload your code to AWS Lambda.
 
+## Building
+Once you're ready to create a zip file of your code, use the following commands:
+
+```
+$ make install_prod
+$ make buildzip_on_macos
+$ make install_dev
+
+# --OR--
+
+$ make install_prod 
+$ make buildzip_on_linux
+$ make install_dev
+
+```
+
+This will place the zip file in the `build` directory. This file can be uploaded directly to AWS Lambda.
+
+One the deployment section is enabled, this step will be eliminated.
+
 ## Deployment
 #### Coming soon!
 

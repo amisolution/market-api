@@ -36,12 +36,11 @@ buildzip_on_linux:
 
 
 ## deploy
-deployfrom_macos: install_prod buildzip_macos
+deployfrom_macos: install_prod buildzip_on_macos
 	sam package --template-file template-aws.yaml --s3-bucket jordanjr --output-template-file packaged.yaml
 	sam deploy --template-file ./packaged.yaml --stack-name mystack --capabilities CAPABILITY_IAM
 
-deployfrom_linux: install_prod buildzip_linux
-	npm run buildzip-linux
+deployfrom_linux: install_prod buildzip_on_linux
 	sam package --template-file template-aws.yaml --s3-bucket jordanjr --output-template-file packaged.yaml
 	sam deploy --template-file ./packaged.yaml --stack-name mystack --capabilities CAPABILITY_IAM
 
