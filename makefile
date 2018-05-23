@@ -51,9 +51,9 @@ test_setup:
 	npm run test-setup
 
 test_macos:
-	@echo "Setting up test environment for Darwin (macOS) ==>" $(OS_PLATFORM)
+	@echo "Setting up & running test environment for Darwin (macOS) ==>" $(OS_PLATFORM)
 	npm run test-macos
 
 test_linux:
-	@echo "Setting up test environment for Linux (AWS Linux) ==>" $(OS_PLATFORM)
+	@echo "Setting up & running test environment for Linux (AWS Linux) ==>" $(OS_PLATFORM)
 	npm run test-linux

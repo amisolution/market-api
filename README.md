@@ -83,17 +83,48 @@ $ sam local invoke -e event.json "HelloWorld"
 
 If you see `"Hello MARKET"` at the bottom of the response, you're ready to go!
 
-
-## Developer's Guide
-
 ### Using Vagrant
-- Install Vagrant
-- Install Virtualbox
-- Customize the Vagrantfile & bootstrap_final.sh
+If you'd like to use a pre-configured Linux environment, install Vagrant. You'll be running
+AWS Linux as it closely resembles the [Lamdba Execution Environment](https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html). 
+- Install [Vagrant](https://www.vagrantup.com/downloads.html)
+- Install [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
 
+From within the market-api repo on your host:
+
+```
+$ cd vagrant
+$ vagrant up
+$ vagrant ssh
+$ cd market-api
+```
+Please note, the install script switches the repo to `develop`. 
+
+Using Vagrant, there are many capabilities to integrate with your host environment like sharing 
+files with the guest. Please see the [Vagrant site](https://www.vagrantup.com/docs/index.html) for more details.
+
+### Lamdba Execution Environment
+If your launching a new instance of this AMI on AWS EC2, `amzn-ami-hvm-2017.03.1.20170812-x86_64-gp2`, use the `script/lambda-ami.sh` script 
+in the repo to configure SAM CLI environment. This might be useful for troubleshooting or debugging when a 
+Lambda function isn't working.
+
+## Testing
+Depending upon your platform, use the following commands to test:
+
+```
+$ make test_macos
+
+# --OR--
+
+$ make test_linux
+```
+
+Since we are using `scrypt` for `web3`, there are library specific files for macOS and AWS Linux.
+When running unit tests, the Node scripts will install the correct files to run your tests. When you are using
+the SAM CLI, you'll be using the `scrypt` files specifically for the Lamdba Execution Environment. This  
+ensures compatibility once you upload your code to AWS Lambda.
 
 ## Deployment
-
+#### Coming soon!
 
 ## HTTP methods
 The following endpoints are available:
