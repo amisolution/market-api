@@ -99,13 +99,11 @@ $ cd market-api
 ```
 Please note, the install script switches the repo to `develop`. 
 
-Using Vagrant, there are many capabilities to integrate with your host environment like sharing 
-files with the guest. Please see the [Vagrant site](https://www.vagrantup.com/docs/index.html) for more details.
+Using Vagrant, there are many capabilities to integrate with your host environment like sharing files with the guest. Please see the [Vagrant site](https://www.vagrantup.com/docs/index.html) for more details.
 
 ### Lamdba Execution Environment
 If your launching a new instance of this AMI on AWS EC2, `amzn-ami-hvm-2017.03.1.20170812-x86_64-gp2`, use the `script/lambda-ami.sh` script 
-in the repo to configure SAM CLI environment. This might be useful for troubleshooting or debugging when a 
-Lambda function isn't working.
+in the repo to configure SAM CLI environment. This might be useful for troubleshooting or debugging when a Lambda function isn't working.
 
 ## Testing
 Depending upon your platform, use the following commands to test:
@@ -120,8 +118,7 @@ $ make test_linux
 
 Since we are using `scrypt` for `web3`, there are library specific files for macOS and AWS Linux.
 When running unit tests, the Node scripts will install the correct files to run your tests. When you are using
-the SAM CLI, you'll be using the `scrypt` files specifically for the Lamdba Execution Environment. This  
-ensures compatibility once you upload your code to AWS Lambda.
+the SAM CLI, you'll be using the `scrypt` files specifically for the Lamdba Execution Environment. This ensures compatibility once you upload your code to AWS Lambda.
 
 ## Building
 Once you're ready to create a zip file of your code, use the following commands:
