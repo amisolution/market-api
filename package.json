@@ -1,6 +1,6 @@
 {
-  "name": "marketapi",
-  "version": "0.0.2",
+  "name": "@marketprotocol/marketapi",
+  "version": "0.0.3",
   "description": "MARKET API Serverless functionality",
   "keywords": [
     "MARKET Protocol",
@@ -26,28 +26,38 @@
     "url": "https://github.com/MARKETProtocol/market-api/issues"
   },
   "homepage": "https://marketprotocol.io",
+  "dependencies": {
+    "@marketprotocol/marketjs": "0.0.3",
+    "bignumber.js": "^7.2.1",
+    "web3": "0.20.6"
+  },
+  "devDependencies": {
+    "@0xproject/typescript-typings": "^0.3.2",
+    "@marketprotocol/types": "^0.1.5",
+    "@types/aws-lambda": "^8.10.6",
+    "@types/bn.js": "^4.11.0",
+    "@types/lodash.values": "^4.3.3",
+    "@types/node": "^10.3.3",
+    "@types/underscore": "^1.8.8",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "dotenv": "^6.0.0",
+    "mocha": "^5.2.0",
+    "serverless": "^1.27.3",
+    "serverless-offline": "^3.25.4",
+    "serverless-plugin-typescript": "^1.1.5",
+    "typescript": "^2.9.2"
+  },
   "scripts": {
-    "buildzip-macos": "mkdir -p build && cd src && BUILD_DATE=`date \"+%Y%m%d-%H%M%S\"` && zip -rq ../build/market-api-$BUILD_DATE * && sed -i \"\" -e \"s/CodeUri:.*/CodeUri: build\\/market-api-$BUILD_DATE.zip/g\" ../template-aws.yaml",
-    "buildzip-linux": "mkdir -p build && cd src && BUILD_DATE=`date \"+%Y%m%d-%H%M%S\"` && zip -rq ../build/market-api-$BUILD_DATE * && sed -i \"s/CodeUri:.*/CodeUri: build\\/market-api-$BUILD_DATE.zip/g\" ../template-aws.yaml",
+    "start": "./node_modules/.bin/serverless offline -s dev",
+    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
-    "clean-prep": "rm -rf node_modules/ src/node_modules/ && mkdir node_modules src/node_modules",
-    "install-dev": "npm run clean-prep && npm install --python=python2.7 && npm run modules-lambda && cp -a node_modules/* src/node_modules/",
-    "install-prod": "npm run clean-prep && npm install --python=python2.7 --only=production && npm run modules-lambda && cp -a node_modules/* src/node_modules/",
+    "package": "",
+    "deploy": "",
+    "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
     "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
     "modules-linux": "cp -a modules/scrypt/build/Release/linux/* node_modules/scrypt/build/Release/",
     "modules-macos": "cp -a modules/scrypt/build/Release/macos/* node_modules/scrypt/build/Release/",
-    "test-linux": "npm run modules-linux && mocha **/*.tests.js && npm run modules-lambda",
-    "test-macos": "npm run modules-macos && mocha **/*.tests.js && npm run modules-lambda",
-    "test-setup": "cp .dev-env .env"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "web3": "^1.0.0-beta.34"
-  },
-  "devDependencies": {
-    "chai": "^4.1.2",
-    "chai-http": "^4.0.0",
-    "dotenv": "^5.0.1",
-    "mocha": "^5.2.0"
+    "test": "./node_modules/.bin/serverless package && mocha tests/**/*.test.js"
   }
 }
