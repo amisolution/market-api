@@ -1,27 +1,15 @@
-//import Web3 from 'web3';
 import Web3 from 'web3';
-import { Handler, Context, Callback } from 'aws-lambda';
+import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 import { Market } from '@marketprotocol/marketjs';
-import { Response } from '../types/Response';
 import { ITxParams } from '@marketprotocol/types';
+import { configRinkeby, constants, response } from './constants';
 
-const providerUrlRinkeby: string = process.env.PROVIDER_URL_RINKEBY;
-const registryContractAddress: string = process.env.REGISTRY_CONTRACT_ADDRESS;
-
-// Create a standard response object
-const response: Response = {
-  statusCode: 200,
-  headers: {
-    "Content-Type": "text/plain; charset=utf-8",
-    "Access-Control-Allow-Origin": "*"
-  },
-  body: "",
-  isBase64Encoded: false
-};
 
 /**
  * Get the all addresses in the whitelist
+ * 
+ * @method get
  * @param {Object} event         Events published by the supported AWS service, 
  *                               https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html
  * @param {Context} context      AWS Lambda uses this parameter to provide details of your Lambda, function's 
@@ -29,12 +17,12 @@ const response: Response = {
  * @param {Function} callback    Use it to explicitly return information back to the caller
  * @returns {Function}           Returns the callback function
  */
-const get: Handler = async (event: Object, context: Context, callback: Callback) => {
-  const market: Market = new Market(new Web3.providers.HttpProvider(providerUrlRinkeby));
+const get: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
+  const market: Market = new Market(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY), configRinkeby);
 
   try {
-    const result = await market.getAddressWhiteListAsync(registryContractAddress);
-    response.headers["Content-Type"] = "application/json; charset=utf-8";
+    const result = await market.getAddressWhiteListAsync();
+    response.headers['Content-Type'] = 'application/json; charset=utf-8';
     response.body = JSON.stringify(result);
 
   } catch (error) {
@@ -45,7 +33,6 @@ const get: Handler = async (event: Object, context: Context, callback: Callback)
   callback(null, response);
 };
 
-export { get }
 
 /**
  * Add an addresses to the whitelist
@@ -57,9 +44,9 @@ export { get }
  *                               execution, https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  * @param {Function} callback    Use it to explicitly return information back to the caller
  * @return {Function}            Returns the callback function
-*/
-const add: Handler = async (event: Object, context: Context, callback: Callback) => {
-  const market: Market = new Market(new Web3.providers.HttpProvider(providerUrlRinkeby));
+ */
+const add: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
+  const market: Market = new Market(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY), configRinkeby);
 
 /*
 
@@ -103,7 +90,7 @@ const add: Handler = async (event: Object, context: Context, callback: Callback)
   response.body = JSON.stringify(sendSignedTransactionResult);
 
 
-*/
+
   const txParams: ITxParams = {
   };
 
@@ -118,4 +105,7 @@ const add: Handler = async (event: Object, context: Context, callback: Callback)
   }
 
   callback(null, response);
-}
+  */
+};
+
+export { add, get };

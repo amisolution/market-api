@@ -27,37 +27,92 @@
   },
   "homepage": "https://marketprotocol.io",
   "dependencies": {
-    "@marketprotocol/marketjs": "0.0.3",
+    "@marketprotocol/marketjs": "^0.0.5",
+    "axios": "^0.18.0",
     "bignumber.js": "^7.2.1",
+    "crypto-js": "^3.1.9-1",
     "web3": "0.20.6"
   },
   "devDependencies": {
-    "@0xproject/typescript-typings": "^0.3.2",
-    "@marketprotocol/types": "^0.1.5",
-    "@types/aws-lambda": "^8.10.6",
-    "@types/bn.js": "^4.11.0",
-    "@types/lodash.values": "^4.3.3",
-    "@types/node": "^10.3.3",
-    "@types/underscore": "^1.8.8",
-    "chai": "^4.1.2",
-    "chai-http": "^4.0.0",
+    "@0xproject/typescript-typings": "^0.4.1",
+    "@marketprotocol/types": "^0.1.7",
+    "@types/aws-lambda": "^8.10.7",
+    "@types/bn.js": "^4.11.1",
+    "@types/crypto-js": "^3.1.41",
+    "@types/jest": "^23.1.4",
+    "@types/node": "^10.5.1",
     "dotenv": "^6.0.0",
-    "mocha": "^5.2.0",
-    "serverless": "^1.27.3",
-    "serverless-offline": "^3.25.4",
+    "jest": "^23.3.0",
+    "jest-extended": "^0.7.2",
+    "prettier": "^1.13.7",
+    "serverless": "^1.28.0",
+    "serverless-offline": "^3.25.5",
     "serverless-plugin-typescript": "^1.1.5",
+    "ts-jest": "^23.0.0",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "tslint-config-standard": "^7.1.0",
     "typescript": "^2.9.2"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "moduleNameMapper": {
+      "src/(.*)": "<rootDir>/src/$1"
+    },
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 45,
+        "functions": 55,
+        "lines": 60,
+        "statements": 60
+      }
+    },
+    "collectCoverage": true,
+    "verbose": true,
+    "setupTestFrameworkScriptFile": "jest-extended"
   },
   "scripts": {
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
+    "precommit": "lint-staged",
     "package": "",
     "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
     "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
     "modules-linux": "cp -a modules/scrypt/build/Release/linux/* node_modules/scrypt/build/Release/",
     "modules-macos": "cp -a modules/scrypt/build/Release/macos/* node_modules/scrypt/build/Release/",
-    "test": "./node_modules/.bin/serverless package && mocha tests/**/*.test.js"
+    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint:fix": "tslint --fix -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier --write --parser typescript",
+      "npm run lint:fix",
+      "git add"
+    ]
   }
 }

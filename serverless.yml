@@ -40,19 +40,14 @@ provider:
   region: us-east-1
   # role: arn:aws:iam::YourAccountNumber:role/YourIamRole
   environment:
-    PROVIDER_URL_RINKEBY: 'https://rinkeby.infura.io/cbHh1p8RT4Q6E97F4gVi'
     OWNER_ADDRESS: '0x361ffaa1c30267ffb4c74c87fd50751b038d20b4'
     OWNER_PRIVATE_KEY: '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f'
-    GAS_LIMIT: '100000'
-    GAS_PRICE: '20000000000'
-    REGISTRY_CONTRACT_ADDRESS: '0x4bc60737323fd065d99c726ca2c0fad0d1077a60'
-    ORDER_LIB_ADDRESS: '0xd43d3d88e62bd8bbadb779f63da96c0119c49bbd'
-    MARKET_CONTRACT_ADDRESS_1: '0x0c6b44155a305bd611492ba3165fbfa6e59681b3'
+    MARKET_CONTRACT_ADDRESS_1: '0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef'
     MARKET_CONTRACT_ADDRESS_2: ''
     MARKET_CONTRACT_ADDRESS_3: ''
     MARKET_CONTRACT_ADDRESS_4: ''
     MARKET_CONTRACT_ADDRESS_5: ''
-    COLLATERAL_POOL_CONTRACT_ADDRESS_1: '0x3bb28ea157d178da4f4b1e194f5b9a9a6c8397a0'
+    COLLATERAL_POOL_CONTRACT_ADDRESS_1: '0xf8d557eeb0e4961a3de2ada3f18c80792dff4dae'
     COLLATERAL_POOL_CONTRACT_ADDRESS_2: ''
     COLLATERAL_POOL_CONTRACT_ADDRESS_3: ''
     COLLATERAL_POOL_CONTRACT_ADDRESS_4: ''
@@ -95,6 +90,7 @@ package:
     - node_modules/@0xproject/typescript-typings/**
     - node_modules/@marketprotocol/marketjs/**
     - node_modules/@marketprotocol/types/**
+    - node_modules/axios/**
     - node_modules/bignumber.js/**
     - node_modules/crypto-js/**
     - node_modules/utf8/**
@@ -121,16 +117,6 @@ functions:
       - http:
           path: whitelist
           method: post
-  collateralPoolGet:
-    handler: src/collateralpool.get
-    name: ${self:service.name}-${self:provider.stage}-collateralpool-get
-    description: Get the collateral pool contract address
-    memorySize: 1024
-    timeout: 300
-    events:
-      - http:
-          path: collateralpool
-          method: get
   ordersGet:
     handler: src/orders.get
     name: ${self:service.name}-${self:provider.stage}-orders-get
@@ -140,6 +126,26 @@ functions:
     events:
       - http:
           path: orders
+          method: get
+  proxyGet:
+    handler: src/proxy.proxyAll
+    name: ${self:service.name}-${self:provider.stage}-proxy-proxyAll
+    description: Proxy function for oracles
+    memorySize: 1024
+    timeout: 300
+    events:
+      - http:
+          path: proxy/{entity}/{action}
+          method: get
+  collateralPoolGet:
+    handler: src/collateralpool.get
+    name: ${self:service.name}-${self:provider.stage}-collateralpool-get
+    description: Get the collateral pool contract address
+    memorySize: 1024
+    timeout: 300
+    events:
+      - http:
+          path: collateralpool
           method: get
 
 #    The following are a few example events you can configure
