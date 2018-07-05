@@ -42,6 +42,7 @@
     "@types/jest": "^23.1.4",
     "@types/node": "^10.5.1",
     "dotenv": "^6.0.0",
+    "husky": "^0.14.3",
     "jest": "^23.3.0",
     "jest-extended": "^0.7.2",
     "prettier": "^1.13.7",
@@ -58,7 +59,7 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
-    "precommit": "lint-staged",
+    "pre-commit": "lint-staged",
     "package": "",
     "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
@@ -72,7 +73,7 @@
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
-      "prettier --write --parser typescript",
+      "./node_modules/prettier/bin-prettier.js --write --parser typescript",
       "npm run lint:fix",
       "git add"
     ]
