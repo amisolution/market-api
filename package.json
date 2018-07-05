@@ -54,6 +54,29 @@
     "tslint-config-standard": "^7.1.0",
     "typescript": "^2.9.2"
   },
+  "scripts": {
+    "start": "./node_modules/.bin/serverless offline -s dev",
+    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
+    "clean": "rm -rf node_modules/ src/node_modules/",
+    "precommit": "lint-staged",
+    "package": "",
+    "deploy": "",
+    "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
+    "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
+    "modules-linux": "cp -a modules/scrypt/build/Release/linux/* node_modules/scrypt/build/Release/",
+    "modules-macos": "cp -a modules/scrypt/build/Release/macos/* node_modules/scrypt/build/Release/",
+    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint:fix": "tslint --fix -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier --write --parser typescript",
+      "npm run lint:fix",
+      "git add"
+    ]
+  },
   "jest": {
     "globals": {
       "ts-jest": {
@@ -91,28 +114,5 @@
     "collectCoverage": true,
     "verbose": true,
     "setupTestFrameworkScriptFile": "jest-extended"
-  },
-  "scripts": {
-    "start": "./node_modules/.bin/serverless offline -s dev",
-    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
-    "clean": "rm -rf node_modules/ src/node_modules/",
-    "precommit": "lint-staged",
-    "package": "",
-    "deploy": "",
-    "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
-    "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
-    "modules-linux": "cp -a modules/scrypt/build/Release/linux/* node_modules/scrypt/build/Release/",
-    "modules-macos": "cp -a modules/scrypt/build/Release/macos/* node_modules/scrypt/build/Release/",
-    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
-    "lint:fix": "tslint --fix -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "lint-staged": {
-    "{src,test}/**/*.ts": [
-      "prettier --write --parser typescript",
-      "npm run lint:fix",
-      "git add"
-    ]
   }
 }

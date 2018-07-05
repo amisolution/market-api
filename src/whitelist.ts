@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 import { Market } from '@marketprotocol/marketjs';
-import { ITxParams } from '@marketprotocol/types';
+// import { ITxParams } from '@marketprotocol/types';
 import { configRinkeby, constants, response } from './constants';
 
 
@@ -45,10 +45,9 @@ const get: Handler = async (event: APIGatewayProxyEvent, context: Context, callb
  * @param {Function} callback    Use it to explicitly return information back to the caller
  * @return {Function}            Returns the callback function
  */
+/*
 const add: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
   const market: Market = new Market(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY), configRinkeby);
-
-/*
 
   // get access to the POST body when running via the API Gateway
   let address;
@@ -89,8 +88,6 @@ const add: Handler = async (event: APIGatewayProxyEvent, context: Context, callb
   response.headers["Content-Type"] = "application/json; charset=utf-8";
   response.body = JSON.stringify(sendSignedTransactionResult);
 
-
-
   const txParams: ITxParams = {
   };
 
@@ -105,7 +102,8 @@ const add: Handler = async (event: APIGatewayProxyEvent, context: Context, callb
   }
 
   callback(null, response);
-  */
+  
 };
+*/
 
-export { add, get };
+export { get };

@@ -145,7 +145,7 @@ functions:
     timeout: 300
     events:
       - http:
-          path: collateralpool
+          path: collateralpool/{address}
           method: get
 
 #    The following are a few example events you can configure
