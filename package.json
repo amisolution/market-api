@@ -45,6 +45,7 @@
     "husky": "^0.14.3",
     "jest": "^23.3.0",
     "jest-extended": "^0.7.2",
+    "lint-staged": "^7.2.0",
     "prettier": "^1.13.7",
     "rimraf": "^2.6.2",
     "serverless": "^1.28.0",
@@ -60,7 +61,7 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
-    "prebuild": "rimraf .build .serverless",
+    "precommit": "lint-staged",
     "package": "",
     "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
@@ -71,17 +72,6 @@
     "lint:fix": "tslint --fix -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "test": "jest",
     "test:watch": "jest --watch"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": {
-        "{src,test}/**/*.ts": [
-          "./node_modules/prettier/bin-prettier.js --write --parser typescript",
-          "npm run lint:fix",
-          "git add"
-        ]
-      }
-    }
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
