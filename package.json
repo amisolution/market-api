@@ -46,6 +46,7 @@
     "jest": "^23.3.0",
     "jest-extended": "^0.7.2",
     "prettier": "^1.13.7",
+    "rimraf": "^2.6.2",
     "serverless": "^1.28.0",
     "serverless-offline": "^3.25.5",
     "serverless-plugin-typescript": "^1.1.5",
@@ -59,7 +60,7 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
-    "prebuild": "rimraf .build",
+    "prebuild": "rimraf .build .serverless",
     "package": "",
     "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
@@ -80,7 +81,8 @@
           "git add"
         ]
       }
-   },
+    }
+  },
   "lint-staged": {
     "{src,test}/**/*.ts": [
       "./node_modules/prettier/bin-prettier.js --write --parser typescript",
