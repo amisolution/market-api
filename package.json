@@ -59,7 +59,7 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
-    "precommit": "lint-staged",
+    "prebuild": "rimraf .build",
     "package": "",
     "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
@@ -71,6 +71,16 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": {
+        "{src,test}/**/*.ts": [
+          "./node_modules/prettier/bin-prettier.js --write --parser typescript",
+          "npm run lint:fix",
+          "git add"
+        ]
+      }
+   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
       "./node_modules/prettier/bin-prettier.js --write --parser typescript",
