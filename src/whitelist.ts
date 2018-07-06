@@ -10,12 +10,13 @@ import { configRinkeby, constants, response } from './constants';
  * Get the all addresses in the whitelist
  * 
  * @method get
- * @param {Object} event         Events published by the supported AWS service, 
- *                               https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html
- * @param {Context} context      AWS Lambda uses this parameter to provide details of your Lambda, function's 
- *                               execution, https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
- * @param {Function} callback    Use it to explicitly return information back to the caller
- * @returns {Function}           Returns the callback function
+ * @param {APIGatewayProxyEvent} event   Events published by the supported AWS service, 
+ *                                       https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html
+ * @param {Context} context              AWS Lambda uses this parameter to provide details of your Lambda, 
+ *                                       function's execution,
+ *                                       https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
+ * @param {Callback} callback            Use it to explicitly return information back to the caller
+ * @returns {Handler}                    Returns the Handler
  */
 const get: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
   const market: Market = new Market(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY), configRinkeby);

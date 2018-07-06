@@ -31,7 +31,7 @@
     "axios": "^0.18.0",
     "bignumber.js": "^7.2.1",
     "crypto-js": "^3.1.9-1",
-    "web3": "0.20.6"
+    "web3": "1.0.0-beta.34"
   },
   "devDependencies": {
     "@0xproject/typescript-typings": "^0.4.1",
@@ -62,8 +62,6 @@
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "rm -rf node_modules/ src/node_modules/",
     "precommit": "lint-staged",
-    "package": "",
-    "deploy": "",
     "clean-prep": "rm -rf node_modules/ && mkdir node_modules",
     "modules-lambda": "cp -a modules/scrypt/build/Release/lambda/* node_modules/scrypt/build/Release/",
     "modules-linux": "cp -a modules/scrypt/build/Release/linux/* node_modules/scrypt/build/Release/",

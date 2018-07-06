@@ -4,10 +4,6 @@ import { configRinkeby, constants, response } from './constants';
 import { isEventEmpty } from './utils';
 
 import { Market } from '@marketprotocol/marketjs';
-import { Response } from './types/Response';
-
-// Create a standard response object
-const returnResponse: Response = response;
 
 /**
  * Gets the collateral pool contract address
@@ -16,8 +12,8 @@ const returnResponse: Response = response;
  * @param {Context} context               AWS Lambda uses this parameter to provide details of your Lambda,
  *                                        function's execution, 
  *                                        https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
- * @param {Function} callback             Use it to explicitly return information back to the caller
- * @returns {Function}                    Returns the callback function
+ * @param {Callback} callback             Use it to explicitly return information back to the caller
+ * @returns {Handler}                     Returns the Handler
  */
 const get: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
   const market: Market = new Market(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY), configRinkeby);
@@ -31,15 +27,15 @@ const get: Handler = async (event: APIGatewayProxyEvent, context: Context, callb
   // Return the collateral pool address
   try {
     const result = await market.getCollateralPoolContractAddressAsync(marketContractAddress);
-    returnResponse.headers['Content-Type'] = 'application/json; charset=utf-8';
-    returnResponse.body = JSON.stringify(result);
+    response.headers['Content-Type'] = 'application/json; charset=utf-8';
+    response.body = JSON.stringify(result);
     
   } catch (error) {
-    returnResponse.statusCode = 502;
-    returnResponse.body = error.message;
+    response.statusCode = 502;
+    response.body = error.message;
   }
 
-  callback(null, returnResponse);
+  callback(null, response);
 };
 
 export { get };

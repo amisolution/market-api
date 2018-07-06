@@ -14,7 +14,7 @@ import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
  *                                       execution,
  *                                       https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  * @param {Callback} callback            Return information back to the caller
- * @return {Function}
+ * @return {Handler}                     Returns the Handler
  */
 const proxyAll: Handler = async (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
     // Use event.pathParameters for /proxy/{entity}/{action} and load the appropriate class

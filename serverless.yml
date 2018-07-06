@@ -108,15 +108,15 @@ functions:
       - http:
           path: whitelist
           method: get
-  whitelistAdd:
-    handler: src/whitelist.add
-    name: ${self:service.name}-${self:provider.stage}-whitelist-add
-    description: Add an addresses to the whitelist
-    timeout: 300
-    events:
-      - http:
-          path: whitelist
-          method: post
+  #whitelistAdd:
+  #  handler: src/whitelist.add
+  #  name: ${self:service.name}-${self:provider.stage}-whitelist-add
+  #  description: Add an addresses to the whitelist
+  #  timeout: 300
+  #  events:
+  #    - http:
+  #        path: whitelist
+  #        method: post
   ordersGet:
     handler: src/orders.get
     name: ${self:service.name}-${self:provider.stage}-orders-get
