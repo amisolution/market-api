@@ -1,39 +1,39 @@
 import axios from 'axios';
 import { isEventEmpty, isUrl } from '../utils';
-import { response } from '../constants';
 
-import { Response } from '../types/Response';
-import { APIGatewayProxyEvent, Callback } from 'aws-lambda';
-
+// types
+import { ProxyResponse } from '../types/ProxyResponse';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 /**
  * Proxy endpoint for Binance
- * 
+ *
  * Create a proxy endpoint allowing https://api.marketprotocol.io/proxy/binance/*
  * Accepts a variable number of path parameters
  * Proxy the API calls directly from https://api.binance.com/*
  * Example: to fetch the ticker price, call: https://api.marketprotocol.io/proxy/binance/api/v3/ticker/price
  */
-export class Binance {
+export class Proxy {
   // region Members
   // *****************************************************************
   // ****                     Members                             ****
   // *****************************************************************
+  private readonly _event: APIGatewayProxyEvent;
   private readonly _binanceUrl: string;
-  private _response: Response;
+  private _proxyResponse: ProxyResponse;
   // endregion // members
 
   // region Constructors
   // *****************************************************************
   // ****                     Constructors                        ****
   // *****************************************************************
-  constructor() {
+  constructor(event: APIGatewayProxyEvent) {
+    this._event = event;
     this._binanceUrl = 'https://api.binance.com/';
-    /**
-     * With the Lambda proxy integration for API Gateway, Lambda is required to return an 
-     * output of the following format. This applies to all statusCodes.
-     */
-    this._response = response;
+    this._proxyResponse = {
+      success: true,
+      data: ''
+    };
   }
   // endregion//Constructors
 
@@ -49,30 +49,51 @@ export class Binance {
   // *****************************************************************
 
   //
-  public async get(event: APIGatewayProxyEvent, callback: Callback) {
-    // Get the API action
-    const action = this._getAction(event);
-    const queryParams = this._getQueryParameters(event);
-    const url = this._binanceUrl + action + (queryParams ? `?${queryParams}` : '');
+  public async getProxyData(): Promise<ProxyResponse> {
+    // Use event.pathParameters for /proxy/{entity}/{action} and load the appropriate class
+    // based upon the {entity}.
 
-    // Check for valid URL
-    if (! isUrl(url)) {
-      this._response.statusCode = 400;
-      this._response.body = `Data Validation: Invalid URL: ${url}`;
-      callback(null, this._response);
-      return;
+    let entity = 'not defined';
+
+    // Get the path parameter.
+    if (!isEventEmpty(this._event, 'pathParameters', 'entity')) {
+      entity = this._event.pathParameters.entity;
     }
 
-    try {
-      const binanceResponse = await axios(url);
-      this._response.headers['Content-Type'] = 'application/json; charset=utf-8';
-      this._response.body = JSON.stringify(binanceResponse.data);
+    // Get data based upon source
+    if (entity === 'binance') {
+      // Binance
+      let proxyResult;
 
-    } catch (error) {
-      this._response.statusCode = 502;
-      this._response.body = error.message;
+      // Get the action
+      const action: string = this._getAction(this._event);
+      if (!action) {
+        this._proxyResponse.success = false;
+        this._proxyResponse.data = `Missing action`;
+        return this._proxyResponse;
+      }
+
+      // Get the query parameters
+      const queryParams = this._getQueryParameters(this._event);
+
+      // Check for valid URL
+      const url =
+        this._binanceUrl + action + (queryParams ? `?${queryParams}` : '');
+      if (!isUrl(url)) {
+        this._proxyResponse.success = false;
+        this._proxyResponse.data = `Invalid URL: ${url}`;
+        return this._proxyResponse;
+      }
+      proxyResult = await axios(url);
+      this._proxyResponse.data = JSON.stringify(
+        typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
+      );
+    } else {
+      this._proxyResponse.success = false;
+      this._proxyResponse.data = `Unsupported proxy: ${entity}`;
     }
-    callback(null, this._response);
+
+    return this._proxyResponse;
   }
   // endregion //Public Methods
 
@@ -83,11 +104,11 @@ export class Binance {
   /**
    * Handle/get the action parameter
    * @param {APIGatewayProxyEvent} event     AWS API gateway proxy event.
-   * @returns {string | undefined}           The path parameters for proxy.
+   * @returns {string}                       The path parameters for proxy.
    */
-  private _getAction(event: APIGatewayProxyEvent): (string | undefined) {
+  private _getAction(event: APIGatewayProxyEvent): string {
     // get access to the path parameter action
-    let action;
+    let action = '';
     if (!isEventEmpty(event, 'pathParameters', 'action')) {
       action = event.pathParameters.action;
     }
@@ -96,22 +117,22 @@ export class Binance {
   /**
    * Handle url parameters
    * @param {APIGatewayProxyEvent} event      AWS API gateway proxy event.
-   * @returns {string | undefined}            String of query string parameters.
+   * @returns {string}                        String of query string parameters.
    */
   // @TODO Handle url parameters
-  private _getQueryParameters(event: APIGatewayProxyEvent): (string | undefined) {
+  private _getQueryParameters(event: APIGatewayProxyEvent): string {
     // { "queryStringParameters":{"a":"1","b":"2","c":"3"} }
     // get access to the query parameters
-    let queryParams;
+    let queryParams = '';
     if (!isEventEmpty(event, 'queryStringParameters')) {
-        queryParams = Object.keys(event.queryStringParameters)
-          .reduce((a: string[], k: string) => {
-              a.push(k + '=' + encodeURIComponent(event.queryStringParameters[k]));
-              return a; 
-            }, [])
-          .join('&');
+      queryParams = Object.keys(event.queryStringParameters)
+        .reduce((a: string[], k: string) => {
+          a.push(k + '=' + encodeURIComponent(event.queryStringParameters[k]));
+          return a;
+        }, [])
+        .join('&');
     }
     return queryParams;
   }
   // endregion //Private Methods
-  }
+}
