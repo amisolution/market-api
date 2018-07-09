@@ -1,5 +1,8 @@
 import Web3 from 'web3';
 import { BigNumber } from 'bignumber.js';
+import { ec as EC } from 'elliptic';
+// const secp256k1 = require('secp256k1/elliptic');
+// import { secp256k1 }  from 'secp256k1';
 import { Market } from '@marketprotocol/marketjs';
 import { Proxy } from './Proxy';
 import { configRinkeby, constants, deployedContracts } from '../constants';
@@ -71,20 +74,41 @@ export class Orders {
     }
     const currentPrice = new BigNumber(JSON.parse(proxyResult.data).price);
 
-    // Create the order hash
-    const orderHash = await this._createOrderHashAsync(
-      deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
-      currentPrice
-    );
-
     // Create the signed order hash
-    // const signedOrderHash = await this._signOrderHashAsync(orderHash);
-    const signedOrder = await this._createSignedOrderAsync(
-      deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
-      currentPrice
+    const expirationTimeStamp: BigNumber = new BigNumber(
+      Math.floor(Date.now() / 1000) + 60 * 60
     );
 
-    this._ordersResponse.data = JSON.stringify({ signedOrder: signedOrder });
+    const botOrderObject: SignedOrder = {
+      contractAddress:
+        deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
+      expirationTimestamp: expirationTimeStamp,
+      feeRecipient: constants.NULL_ADDRESS,
+      maker: constants.OWNER_ADDRESS,
+      makerFee: new BigNumber(0),
+      orderQty: new BigNumber(1),
+      price: currentPrice,
+      remainingQty: new BigNumber(1),
+      salt: new BigNumber(0),
+      taker: constants.NULL_ADDRESS,
+      takerFee: new BigNumber(0),
+      ecSignature: {
+        v: 0,
+        r: '',
+        s: ''
+      }
+    };
+    const signedBotOrder: SignedOrder = await this._createSignedOrderAsync(
+      botOrderObject
+    );
+
+    // const signedOrderHash = await this._signOrderHashAsync(orderHash);
+    // const signedOrder = await this._createSignedOrderAsync(
+    //   deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
+    //   currentPrice
+    // );
+
+    this._ordersResponse.data = JSON.stringify(signedBotOrder);
 
     return this._ordersResponse;
 
@@ -95,12 +119,7 @@ export class Orders {
     // return signed orders
 
     /*
-
-    console.log(`order: ${JSON.stringify(order)}, orderHash: ${orderHash}`);
-*/
-    /*
     const web3 = new Web3(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY));
-
     const tx = {
         from: process.env.OWNER_ADDRESS,
         to: process.env.CONTRACT_ADDRESS,
@@ -110,99 +129,52 @@ export class Orders {
     };  
     const signTransactionResult = await web3.eth.accounts.signTransaction(tx, process.env.OWNER_PRIVATE_KEY, (error, result) => result);
     const sendSignedTransactionResult = await  web3.eth.sendSignedTransaction(signTransactionResult.rawTransaction, (error, result) => result);
-
-    const result = web3.eth.sign(constants.OWNER_ADDRESS, String(orderHash), (err, signature) => {
-    // Log errors, if any
-    // TODO: Handle error
-    if (err) {
-      console.error(err);
-    }
-
-    const r = signature.slice(0, 66);
-    const s = `0x${signature.slice(66, 130)}`;
-    let v = web3.toDecimal(`0x${signature.slice(130, 132)}`);
-
-    if (v !== 27 && v !== 28) {
-      v += 27;
-    }
-
-    return ({ v, r, s });
-    
-    console.log(`return: ${result}`);
     */
   }
 
   private async _createSignedOrderAsync(
-    contractAddress: string,
-    price: BigNumber
+    orderObject: SignedOrder
   ): Promise<SignedOrder> {
-    // Create the expiration time
-    const expirationTimeStamp: BigNumber = new BigNumber(
-      Math.floor(Date.now() / 1000) + 60 * 60
-    );
-
-    const signedOrder: SignedOrder = await this._market.createSignedOrderAsync(
-      deployedContracts[4].orderLibAddress, // orderLibAddress: string
-      contractAddress, // contractAddress: string
-      expirationTimeStamp, // expirationTimestamp: BigNumber
-      constants.NULL_ADDRESS, // feeRecipient: string
-      constants.OWNER_ADDRESS, // maker: string
-      new BigNumber(0), // makerFee: BigNumber
-      constants.NULL_ADDRESS, // taker: string
-      new BigNumber(0), // takerFee: BigNumber
-      new BigNumber(1), // orderQty: BigNumber
-      price, // price: BigNumber
-      new BigNumber(1), // remainingQty: BigNumber
-      new BigNumber(0) // salt: BigNumber
-    );
-
-    return signedOrder;
-  }
-
-  private async _signOrderHashAsync(orderHash: string): Promise<ECSignature> {
-    const signedOrderHash = await this._market.signOrderHashAsync(
-      String(orderHash),
-      constants.OWNER_ADDRESS
-    );
-
-    return signedOrderHash;
-  }
-
-  private async _createOrderHashAsync(
-    contractAddress: string,
-    price: BigNumber
-  ): Promise<string> {
-    // Create the expiration time
-    const expirationTimeStamp: BigNumber = new BigNumber(
-      Math.floor(Date.now() / 1000) + 60 * 60
-    );
-
-    const order: Order = {
-      contractAddress: contractAddress,
-      expirationTimestamp: expirationTimeStamp,
-      feeRecipient: constants.NULL_ADDRESS,
-      maker: constants.OWNER_ADDRESS,
-      makerFee: new BigNumber(0),
-      orderQty: new BigNumber(1),
-      price: price,
-      remainingQty: new BigNumber(1),
-      salt: new BigNumber(0),
-      taker: constants.NULL_ADDRESS,
-      takerFee: new BigNumber(0)
-    };
-
+    // Create the order hash
     const orderHash = await this._market.createOrderHashAsync(
       deployedContracts[4].orderLibAddress,
-      order
+      orderObject
     );
 
-    return orderHash;
+    // ** Sign the orders
+    // secp256k1: https://github.com/cryptocoinjs/secp256k1-node
+    // const signatureObject = secp256k1.sign(orderHash, constants.OWNER_PRIVATE_KEY);
+    // orderObject.ecSignature = signatureObject;
+
+    // ** elliptic: https://github.com/indutny/elliptic
+    // const ec = new EC('secp256k1');
+    // const key = ec.genKeyPair();
+    // const signature = key.sign(orderHash);
+    // const derSign = signature.toDER();
+    // //console.log(`key: ${key.verify(orderHash, derSign)}`);
+    // const r = derSign.slice(0, 66);
+    // const s = `0x${derSign.slice(66, 130)}`;
+    // const web3 = new Web3();
+    // let v = web3.toDecimal(`0x${derSign.slice(130, 132)}`);
+    // if (v !== 27 && v !== 28) {
+    //   v += 27;
+    // }
+    // orderObject.ecSignature = { v, r, s };
+
+    // ** MARKET.js
+    orderObject.ecSignature = this._market.signOrderHashAsync(
+      orderHash,
+      orderObject.maker
+    );
+
+    // Return the signed order
+    return orderObject;
   }
 
   /**
    * Get the oracle query for the MarketContract
    * @param {string} marketAddress   The MarketContract address
-   * @returns {Promise<string>}      Oracle query URL
+   * @returns {Promise<string>}      Oracle query URL, specific to Binance at the moment
    */
   private async _getOracleQueryAsync(marketAddress: string): Promise<string> {
     const oracleQuery = await this._market.getOracleQuery(marketAddress);

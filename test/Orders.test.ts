@@ -14,16 +14,8 @@ describe('Orders', () => {
   const marketContract: string =
     deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076;
 
-  beforeAll(async () => {});
-
   it('debug', async () => {
     const result = await orders.getOrders();
     console.log(`result: ${JSON.stringify(result)}`);
   });
-
-  // it('Validate oracle query', async () => {
-  //   const oracleQuery = await orders._getOracleQueryAsync(marketContract);
-  //   console.log(`oracleQuery: ${oracleQuery}`);
-  //   expect(isUrl(oracleQuery)).toBe(true);
-  // });
 });

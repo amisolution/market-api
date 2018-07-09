@@ -144,9 +144,6 @@ export class Proxy {
         this._proxyResponse.data = `Unsupported proxy: ${entity}`;
       }
     }
-    // Get data based upon source
-    if (entity === 'binance') {
-    }
 
     return this._proxyResponse;
   }
