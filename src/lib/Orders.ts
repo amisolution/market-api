@@ -1,8 +1,10 @@
 import Web3 from 'web3';
 import { BigNumber } from 'bignumber.js';
-import { ec as EC } from 'elliptic';
+let Account = require('eth-lib/lib/account');
+// import { ec as EC } from 'elliptic';
 // const secp256k1 = require('secp256k1/elliptic');
 // import { secp256k1 }  from 'secp256k1';
+
 import { Market } from '@marketprotocol/marketjs';
 import { Proxy } from './Proxy';
 import { configRinkeby, constants, deployedContracts } from '../constants';
@@ -162,10 +164,15 @@ export class Orders {
     // orderObject.ecSignature = { v, r, s };
 
     // ** MARKET.js
-    orderObject.ecSignature = this._market.signOrderHashAsync(
-      orderHash,
-      orderObject.maker
-    );
+    // orderObject.ecSignature = this._market.signOrderHashAsync(
+    //   orderHash,
+    //   orderObject.maker
+    // );
+
+    let signature = Account.sign(orderHash, constants.OWNER_PRIVATE_KEY);
+    let vrs = Account.decodeSignature(signature);
+    console.log(vrs);
+    // orderObject.ecSignature = { vrs[0], vrs[1], vrs[2] };
 
     // Return the signed order
     return orderObject;
