@@ -13,7 +13,8 @@ export const constants = {
   NULL_ADDRESS: '0x0000000000000000000000000000000000000000',
   MAX_DIGITS_IN_UNSIGNED_256_INT: 78,
   OWNER_ADDRESS: '0x361ffaa1c30267ffb4c74c87fd50751b038d20b4',
-  OWNER_PRIVATE_KEY: '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f'
+  OWNER_PRIVATE_KEY:
+    '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f'
 };
 
 /**
@@ -31,7 +32,8 @@ export const configRinkeby: MARKETProtocolConfig = {
   networkId: 4,
   marketContractRegistryAddress: '0x4bc60737323fd065d99c726ca2c0fad0d1077a60',
   marketContractFactoryAddress: '0x9d904712cf622d3bfeacb5282a51a0ad1418f9a3',
-  marketCollateralPoolFactoryAddress: '0x011176b12c962b3d65049b0b8358d8e9132223f1',
+  marketCollateralPoolFactoryAddress:
+    '0x011176b12c962b3d65049b0b8358d8e9132223f1',
   marketTokenAddress: '0xffa7d6c01f8b40eb26a5ffbde9d6b5daeebb980e'
 };
 
@@ -49,9 +51,12 @@ export const configMainnet: MARKETProtocolConfig = {
 export const deployedContracts: Object = {
   4: {
     orderLibAddress: '0xd43d3d88e62bd8bbadb779f63da96c0119c49bbd',
-    marketContracts: {
-      'BIN_EOSETH_ETH_1530639526076' : '0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef'
-    }
+    marketContracts: [
+      {
+        name: 'BIN_EOSETH_ETH_1530639526076',
+        address: '0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef'
+      }
+    ]
   }
 };
 
