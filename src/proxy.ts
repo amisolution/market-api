@@ -2,8 +2,8 @@ import { Proxy } from './lib/Proxy';
 import { response } from './constants';
 
 // types
-import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 import { ProxyResponse } from './types/ProxyResponse';
+import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 /**
  * Proxy function for oracles
@@ -22,7 +22,7 @@ const proxyAll: Handler = async (
   context: Context,
   callback: Callback
 ) => {
-  // Hand off to the proxy class
+  // Hand off to the Proxy class
   const proxy = new Proxy(event);
   const proxyResult: ProxyResponse = await proxy.getProxyData();
 

@@ -1,5 +1,8 @@
 import { Orders } from './lib/Orders';
 import { response } from './constants';
+
+// types
+import { OrdersResponse } from './types/OrdersResponse';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 /**
@@ -17,14 +20,18 @@ const get: Handler = async (
   context: Context,
   callback: Callback
 ) => {
-  try {
-    const orders = new Orders();
-    const signedOrders: Object = orders.getOrders();
+  // Hand off to the Orders class
+  const orders = new Orders();
+  const signedOrders: OrdersResponse = await orders.getOrders();
+
+  // Set response body
+  response.body = signedOrders.data;
+
+  // Determine if success or error
+  if (signedOrders.success) {
     response.headers['Content-Type'] = 'application/json; charset=utf-8';
-    response.body = JSON.stringify(signedOrders);
-  } catch (error) {
+  } else {
     response.statusCode = 502;
-    response.body = error.message;
   }
   callback(null, response);
 };

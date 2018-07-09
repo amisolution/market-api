@@ -16,6 +16,12 @@ describe('Proxy', () => {
       action: 'api/v3/ticker/price?symbol=EOSETH'
     }
   };
+  const overrideUrl: Object = {
+    pathParameters: {
+      entity: 'overrideUrl',
+      action: 'https://api.binance.com/api/v3/ticker/price?symbol=EOSETH'
+    }
+  };
 
   it('Fails on missing entity', async () => {
     const proxy = new Proxy(entityIsMissing);
@@ -39,6 +45,14 @@ describe('Proxy', () => {
   });
   it('Supports Binance', async () => {
     const proxy = new Proxy(binance);
+    const result: ProxyResponse = await proxy.getProxyData();
+    const data = JSON.parse(result.data);
+    expect(result.success).toBe(true);
+    expect(data).toHaveProperty('symbol');
+    expect(data).toHaveProperty('price');
+  });
+  it('Supports the overrideURL', async () => {
+    const proxy = new Proxy(overrideUrl);
     const result: ProxyResponse = await proxy.getProxyData();
     const data = JSON.parse(result.data);
     expect(result.success).toBe(true);

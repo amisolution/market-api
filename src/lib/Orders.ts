@@ -1,9 +1,14 @@
 import Web3 from 'web3';
-import { configRinkeby, constants, deployedContracts } from '../constants';
 import { BigNumber } from 'bignumber.js';
 import { Market } from '@marketprotocol/marketjs';
+import { Proxy } from './Proxy';
+import { configRinkeby, constants, deployedContracts } from '../constants';
 
-import { Order, SignedOrder } from '@marketprotocol/types';
+// types
+import { ECSignature, Order, SignedOrder } from '@marketprotocol/types';
+
+import { OrdersResponse } from '../types/OrdersResponse';
+import { ProxyResponse } from '../types/ProxyResponse';
 
 /**
  * region template
@@ -14,6 +19,7 @@ export class Orders {
   // ****                     Members                             ****
   // *****************************************************************
   private readonly _market: Market;
+  private _ordersResponse: OrdersResponse;
   // endregion // members
 
   // region Constructors
@@ -25,6 +31,10 @@ export class Orders {
       new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY),
       configRinkeby
     );
+    this._ordersResponse = {
+      success: true,
+      data: ''
+    };
   }
   // endregion//Constructors
 
@@ -38,15 +48,45 @@ export class Orders {
   // *****************************************************************
   // ****                     Public Methods                      ****
   // *****************************************************************
-  public async getOrders() {
-    const expirationTimeStamp: BigNumber = new BigNumber(
-      Math.floor(Date.now() / 1000) + 60 * 60
-    );
-    const oracleQuery = this._getOracleQueryAsync(
+  public async getOrders(): Promise<OrdersResponse> {
+    // Get the oracle query for the contract
+    const oracleQuery: string = await this._getOracleQueryAsync(
       deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076
     );
+    console.log(`oracleQuery: ${oracleQuery}`);
 
-    // get price for trading pair
+    // Get price for trading pair
+    const eventObject: Object = {
+      pathParameters: {
+        entity: 'overrideUrl',
+        action: oracleQuery
+      }
+    };
+    const proxy = new Proxy(eventObject);
+    const proxyResult: ProxyResponse = await proxy.getProxyData();
+    if (!proxyResult.success) {
+      this._ordersResponse.success = false;
+      this._ordersResponse.data = JSON.stringify(proxyResult.data);
+      return this._ordersResponse;
+    }
+    const currentPrice = new BigNumber(JSON.parse(proxyResult.data).price);
+
+    // Create the order hash
+    const orderHash = await this._createOrderHashAsync(
+      deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
+      currentPrice
+    );
+
+    // Create the signed order hash
+    // const signedOrderHash = await this._signOrderHashAsync(orderHash);
+    const signedOrder = await this._createSignedOrderAsync(
+      deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
+      currentPrice
+    );
+
+    this._ordersResponse.data = JSON.stringify({ signedOrder: signedOrder });
+
+    return this._ordersResponse;
 
     // create bid and ask
 
@@ -54,26 +94,10 @@ export class Orders {
 
     // return signed orders
 
-    const order: Order = {
-      contractAddress:
-        deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076,
-      expirationTimestamp: expirationTimeStamp,
-      feeRecipient: constants.NULL_ADDRESS,
-      maker: constants.OWNER_ADDRESS,
-      makerFee: new BigNumber(0),
-      orderQty: new BigNumber(1),
-      price: new BigNumber(1952250),
-      remainingQty: new BigNumber(1),
-      salt: new BigNumber(0),
-      taker: constants.NULL_ADDRESS,
-      takerFee: new BigNumber(0)
-    };
-    const orderHash = await this._market.createOrderHashAsync(
-      deployedContracts[4].orderLibAddress,
-      order
-    );
-    console.log(`order: ${JSON.stringify(order)}, orderHash: ${orderHash}`);
+    /*
 
+    console.log(`order: ${JSON.stringify(order)}, orderHash: ${orderHash}`);
+*/
     /*
     const web3 = new Web3(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY));
 
@@ -106,16 +130,20 @@ export class Orders {
     
     console.log(`return: ${result}`);
     */
+  }
 
-    const signedOrderHash = await market.signOrderHashAsync(
-      String(orderHash),
-      constants.OWNER_ADDRESS
+  private async _createSignedOrderAsync(
+    contractAddress: string,
+    price: BigNumber
+  ): Promise<SignedOrder> {
+    // Create the expiration time
+    const expirationTimeStamp: BigNumber = new BigNumber(
+      Math.floor(Date.now() / 1000) + 60 * 60
     );
-    console.log(`signedOrderHash: ${signedOrderHash}`);
 
-    const signedOrder: SignedOrder = await market.createSignedOrderAsync(
+    const signedOrder: SignedOrder = await this._market.createSignedOrderAsync(
       deployedContracts[4].orderLibAddress, // orderLibAddress: string
-      deployedContracts[4].marketContracts.BIN_EOSETH_ETH_1530639526076, // contractAddress: string
+      contractAddress, // contractAddress: string
       expirationTimeStamp, // expirationTimestamp: BigNumber
       constants.NULL_ADDRESS, // feeRecipient: string
       constants.OWNER_ADDRESS, // maker: string
@@ -123,23 +151,62 @@ export class Orders {
       constants.NULL_ADDRESS, // taker: string
       new BigNumber(0), // takerFee: BigNumber
       new BigNumber(1), // orderQty: BigNumber
-      new BigNumber(1952250), // price: BigNumber
+      price, // price: BigNumber
       new BigNumber(1), // remainingQty: BigNumber
       new BigNumber(0) // salt: BigNumber
     );
-    console.log(`signedOrder: ${JSON.stringify(signedOrder)}`);
+
+    return signedOrder;
   }
 
-  public async _getSignOrderAsync() {}
+  private async _signOrderHashAsync(orderHash: string): Promise<ECSignature> {
+    const signedOrderHash = await this._market.signOrderHashAsync(
+      String(orderHash),
+      constants.OWNER_ADDRESS
+    );
+
+    return signedOrderHash;
+  }
+
+  private async _createOrderHashAsync(
+    contractAddress: string,
+    price: BigNumber
+  ): Promise<string> {
+    // Create the expiration time
+    const expirationTimeStamp: BigNumber = new BigNumber(
+      Math.floor(Date.now() / 1000) + 60 * 60
+    );
+
+    const order: Order = {
+      contractAddress: contractAddress,
+      expirationTimestamp: expirationTimeStamp,
+      feeRecipient: constants.NULL_ADDRESS,
+      maker: constants.OWNER_ADDRESS,
+      makerFee: new BigNumber(0),
+      orderQty: new BigNumber(1),
+      price: price,
+      remainingQty: new BigNumber(1),
+      salt: new BigNumber(0),
+      taker: constants.NULL_ADDRESS,
+      takerFee: new BigNumber(0)
+    };
+
+    const orderHash = await this._market.createOrderHashAsync(
+      deployedContracts[4].orderLibAddress,
+      order
+    );
+
+    return orderHash;
+  }
 
   /**
    * Get the oracle query for the MarketContract
    * @param {string} marketAddress   The MarketContract address
    * @returns {Promise<string>}      Oracle query URL
    */
-  public async _getOracleQueryAsync(marketAddress: string): Promise<string> {
+  private async _getOracleQueryAsync(marketAddress: string): Promise<string> {
     const oracleQuery = await this._market.getOracleQuery(marketAddress);
-    return oracleQuery.replace(/^.*\((.*)\)/, '$1');
+    return oracleQuery.replace(/^.*\((.*)\).*/, '$1');
   }
   // endregion //Public Methods
 

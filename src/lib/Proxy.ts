@@ -61,36 +61,91 @@ export class Proxy {
     }
 
     // Get data based upon source
+    switch (entity) {
+      case 'binance': {
+        // Binance
+
+        // Define the proxy result
+        let proxyResult;
+
+        // Get the action
+        const action: string = this._getAction(this._event);
+        if (!action) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Missing action`;
+          return this._proxyResponse;
+        }
+
+        // Get the query parameters
+        const queryParams = this._getQueryParameters(this._event);
+
+        // Check for valid URL
+        const url =
+          this._binanceUrl + action + (queryParams ? `?${queryParams}` : '');
+        if (!isUrl(url)) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Invalid URL: ${url}`;
+          return this._proxyResponse;
+        }
+
+        // Try to get proxy data
+        try {
+          proxyResult = await axios(url);
+        } catch (error) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Failure getting data from: ${url}, error: ${error}`;
+          return this._proxyResponse;
+        }
+
+        // Check for the data property
+        this._proxyResponse.data = JSON.stringify(
+          typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
+        );
+        break;
+      }
+      case 'overrideUrl': {
+        // Define the proxy result
+        let proxyResult;
+
+        // Get the action
+        const url: string = this._getAction(this._event);
+        if (!url) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Missing action`;
+          return this._proxyResponse;
+        }
+
+        // Check for valid URL
+        if (!isUrl(url)) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Invalid URL: ${url}`;
+          return this._proxyResponse;
+        }
+
+        // Try to get proxy data
+        try {
+          proxyResult = await axios(url);
+        } catch (error) {
+          this._proxyResponse.success = false;
+          this._proxyResponse.data = `Failure getting data from: ${url}, error: ${error}`;
+          return this._proxyResponse;
+        }
+
+        // Check for the data property
+        this._proxyResponse.data = JSON.stringify(
+          typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
+        );
+
+        break;
+      }
+      default: {
+        // Unknown entity
+        this._proxyResponse.success = false;
+        this._proxyResponse.data = `Unsupported proxy: ${entity}`;
+      }
+    }
+    // Get data based upon source
     if (entity === 'binance') {
-      // Binance
-      let proxyResult;
-
-      // Get the action
-      const action: string = this._getAction(this._event);
-      if (!action) {
-        this._proxyResponse.success = false;
-        this._proxyResponse.data = `Missing action`;
-        return this._proxyResponse;
-      }
-
-      // Get the query parameters
-      const queryParams = this._getQueryParameters(this._event);
-
-      // Check for valid URL
-      const url =
-        this._binanceUrl + action + (queryParams ? `?${queryParams}` : '');
-      if (!isUrl(url)) {
-        this._proxyResponse.success = false;
-        this._proxyResponse.data = `Invalid URL: ${url}`;
-        return this._proxyResponse;
-      }
-      proxyResult = await axios(url);
-      this._proxyResponse.data = JSON.stringify(
-        typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
-      );
-    } else {
-      this._proxyResponse.success = false;
-      this._proxyResponse.data = `Unsupported proxy: ${entity}`;
     }
 
     return this._proxyResponse;

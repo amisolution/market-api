@@ -1,5 +1,6 @@
 import Web3 from 'web3';
 import { Orders } from '../src/lib/Orders';
+import { Proxy } from '../src/lib/Proxy';
 import { Market } from '@marketprotocol/marketjs';
 import { configRinkeby, constants, deployedContracts } from '../src/constants';
 import { isUrl } from '../src/utils';
@@ -15,9 +16,14 @@ describe('Orders', () => {
 
   beforeAll(async () => {});
 
-  it('Validate oracle query', async () => {
-    const oracleQuery = await orders._getOracleQueryAsync(marketContract);
-    console.log(`oracleQuery: ${oracleQuery}`);
-    expect(isUrl(oracleQuery)).toBe(true);
+  it('debug', async () => {
+    const result = await orders.getOrders();
+    console.log(`result: ${JSON.stringify(result)}`);
   });
+
+  // it('Validate oracle query', async () => {
+  //   const oracleQuery = await orders._getOracleQueryAsync(marketContract);
+  //   console.log(`oracleQuery: ${oracleQuery}`);
+  //   expect(isUrl(oracleQuery)).toBe(true);
+  // });
 });
