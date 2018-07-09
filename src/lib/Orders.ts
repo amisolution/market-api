@@ -138,10 +138,6 @@ export class Orders {
     orderObject: SignedOrder
   ): Promise<SignedOrder> {
     // Create the order hash
-    const orderHash = await this._market.createOrderHashAsync(
-      deployedContracts[4].orderLibAddress,
-      orderObject
-    );
 
     // ** Sign the orders
     // secp256k1: https://github.com/cryptocoinjs/secp256k1-node
@@ -168,12 +164,26 @@ export class Orders {
     //   orderHash,
     //   orderObject.maker
     // );
+    console.log(orderObject.maker);
+    console.log(constants.OWNER_ADDRESS);
+    let account = Account.fromPrivate(constants.OWNER_PRIVATE_KEY);
+    console.log(account);
+    orderObject.maker = account.address;
+    const orderHash = await this._market.createOrderHashAsync(
+      deployedContracts[4].orderLibAddress,
+      orderObject
+    );
 
     let signature = Account.sign(orderHash, constants.OWNER_PRIVATE_KEY);
     let vrs = Account.decodeSignature(signature);
     console.log(vrs);
-    // orderObject.ecSignature = { vrs[0], vrs[1], vrs[2] };
+    orderObject.ecSignature = { v: vrs[0], r: vrs[1], s: vrs[2] };
 
+    let isValid = await this._market.isValidSignatureAsync(
+      deployedContracts[4].orderLibAddress,
+      orderObject,
+      orderHash
+    );
     // Return the signed order
     return orderObject;
   }
