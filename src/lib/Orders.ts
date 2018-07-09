@@ -164,11 +164,45 @@ export class Orders {
     //   orderHash,
     //   orderObject.maker
     // );
+
+  //     /// @notice confirms hash originated from signer
+  //     /// @param signerAddress - address of order originator
+  //     /// @param hash - original order hash
+  //     /// @param v order signature
+  //     /// @param r order signature
+  //     /// @param s order signature
+  //     function isValidSignature(
+  //         address signerAddress,
+  //         bytes32 hash,
+  //         uint8 v,
+  //         bytes32 r,
+  //         bytes32 s
+  // ) public pure returns (bool)
+  //     {
+  //         return signerAddress == ecrecover(
+  //             keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)),
+  //             v,
+  //             r,
+  //             s
+  //         );
+  //     }
+  //
+     s Accounts.prototype.hashMessage = function hashMessage(data) {
+          var message = utils.isHexStrict(data) ? utils.hexToBytes(data) : data;
+          var messageBuffer = Buffer.from(message);
+          var preamble = "\x19Ethereum Signed Message:\n" + message.length;
+          var preambleBuffer = Buffer.from(preamble);
+          var ethMessage = Buffer.concat([preambleBuffer, messageBuffer]);
+          return Hash.keccak256s(ethMessage);
+      };
+
+
     console.log(orderObject.maker);
     console.log(constants.OWNER_ADDRESS);
     let account = Account.fromPrivate(constants.OWNER_PRIVATE_KEY);
     console.log(account);
     orderObject.maker = account.address;
+    console.log(orderObject.maker);
     const orderHash = await this._market.createOrderHashAsync(
       deployedContracts[4].orderLibAddress,
       orderObject
@@ -178,8 +212,12 @@ export class Orders {
     let vrs = Account.decodeSignature(signature);
     console.log(vrs);
     orderObject.ecSignature = { v: vrs[0], r: vrs[1], s: vrs[2] };
+    let recoverAccount = Account.recover(orderHash, signature);
+    console.log(recoverAccount);
+      console.log(recoverAccount);
+      console.log(recoverAccount);
 
-    let isValid = await this._market.isValidSignatureAsync(
+      let isValid = await this._market.isValidSignatureAsync(
       deployedContracts[4].orderLibAddress,
       orderObject,
       orderHash
