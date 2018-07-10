@@ -4,7 +4,7 @@ let Account = require('eth-lib/lib/account');
 // import { ec as EC } from 'elliptic';
 // const secp256k1 = require('secp256k1/elliptic');
 // import { secp256k1 }  from 'secp256k1';
-
+let ethUtil = require('ethereumjs-util');
 import { Market } from '@marketprotocol/marketjs';
 import { Proxy } from './Proxy';
 import { configRinkeby, constants, deployedContracts } from '../constants';
@@ -138,90 +138,25 @@ export class Orders {
     orderObject: SignedOrder
   ): Promise<SignedOrder> {
     // Create the order hash
-
-    // ** Sign the orders
-    // secp256k1: https://github.com/cryptocoinjs/secp256k1-node
-    // const signatureObject = secp256k1.sign(orderHash, constants.OWNER_PRIVATE_KEY);
-    // orderObject.ecSignature = signatureObject;
-
-    // ** elliptic: https://github.com/indutny/elliptic
-    // const ec = new EC('secp256k1');
-    // const key = ec.genKeyPair();
-    // const signature = key.sign(orderHash);
-    // const derSign = signature.toDER();
-    // //console.log(`key: ${key.verify(orderHash, derSign)}`);
-    // const r = derSign.slice(0, 66);
-    // const s = `0x${derSign.slice(66, 130)}`;
-    // const web3 = new Web3();
-    // let v = web3.toDecimal(`0x${derSign.slice(130, 132)}`);
-    // if (v !== 27 && v !== 28) {
-    //   v += 27;
-    // }
-    // orderObject.ecSignature = { v, r, s };
-
-    // ** MARKET.js
-    // orderObject.ecSignature = this._market.signOrderHashAsync(
-    //   orderHash,
-    //   orderObject.maker
-    // );
-
-  //     /// @notice confirms hash originated from signer
-  //     /// @param signerAddress - address of order originator
-  //     /// @param hash - original order hash
-  //     /// @param v order signature
-  //     /// @param r order signature
-  //     /// @param s order signature
-  //     function isValidSignature(
-  //         address signerAddress,
-  //         bytes32 hash,
-  //         uint8 v,
-  //         bytes32 r,
-  //         bytes32 s
-  // ) public pure returns (bool)
-  //     {
-  //         return signerAddress == ecrecover(
-  //             keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)),
-  //             v,
-  //             r,
-  //             s
-  //         );
-  //     }
-  //
-     s Accounts.prototype.hashMessage = function hashMessage(data) {
-          var message = utils.isHexStrict(data) ? utils.hexToBytes(data) : data;
-          var messageBuffer = Buffer.from(message);
-          var preamble = "\x19Ethereum Signed Message:\n" + message.length;
-          var preambleBuffer = Buffer.from(preamble);
-          var ethMessage = Buffer.concat([preambleBuffer, messageBuffer]);
-          return Hash.keccak256s(ethMessage);
-      };
-
-
-    console.log(orderObject.maker);
-    console.log(constants.OWNER_ADDRESS);
-    let account = Account.fromPrivate(constants.OWNER_PRIVATE_KEY);
-    console.log(account);
-    orderObject.maker = account.address;
-    console.log(orderObject.maker);
     const orderHash = await this._market.createOrderHashAsync(
       deployedContracts[4].orderLibAddress,
       orderObject
     );
 
-    let signature = Account.sign(orderHash, constants.OWNER_PRIVATE_KEY);
+    // NOTE - we will have to clean this up somewhere eventually, but we have to prefix our orderHashes with
+    // "\x19Ethereum Signed Message:\n32" in order for them to be valid.
+    let signature = Account.sign(ethUtil.bufferToHex(ethUtil.hashPersonalMessage(ethUtil.toBuffer(orderHash))),
+        constants.OWNER_PRIVATE_KEY);
     let vrs = Account.decodeSignature(signature);
-    console.log(vrs);
     orderObject.ecSignature = { v: vrs[0], r: vrs[1], s: vrs[2] };
-    let recoverAccount = Account.recover(orderHash, signature);
-    console.log(recoverAccount);
-      console.log(recoverAccount);
-      console.log(recoverAccount);
 
-      let isValid = await this._market.isValidSignatureAsync(
-      deployedContracts[4].orderLibAddress,
-      orderObject,
-      orderHash
-    );
+    // let isValid = await this._market.isValidSignatureAsync(
+    //   deployedContracts[4].orderLibAddress,
+    //   orderObject,
+    //   orderHash
+    // );
+    // console.log(isValid);
+
     // Return the signed order
     return orderObject;
   }
