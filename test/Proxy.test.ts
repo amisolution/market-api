@@ -1,4 +1,5 @@
 import { Proxy } from '../src/lib/Proxy';
+import { toBeNumber, toBeObject } from 'jest-extended';
 
 // types
 import { ProxyResponse } from '../src/types/ProxyResponse';
@@ -18,6 +19,13 @@ describe('Proxy', () => {
     queryStringParameters: {
       symbol: 'EOSETH'
     }
+  };
+  const bitfinex: Object = {
+    pathParameters: {
+      entity: 'bitfinex',
+      proxy: 'v1/pubticker/BTCUSD'
+    },
+    queryStringParameters: {}
   };
 
   it('Fails on missing entity', async () => {
@@ -43,10 +51,19 @@ describe('Proxy', () => {
   it('Supports Binance', async () => {
     const proxy = new Proxy(binance);
     const result: ProxyResponse = await proxy.getProxyData();
-    console.log(result.data);
     const data = JSON.parse(result.data);
     expect(result.success).toBe(true);
     expect(data).toHaveProperty('symbol');
     expect(data).toHaveProperty('price');
+  });
+  it('Supports Bitfinex', async () => {
+    const proxy = new Proxy(bitfinex);
+    const result: ProxyResponse = await proxy.getProxyData();
+    const data = JSON.parse(result.data);
+    expect(result.success).toBe(true);
+    expect(data).toBeDefined();
+    expect(data).toBeObject();
+    expect(data).toHaveProperty('last_price');
+    expect(parseFloat(data.last_price)).toBeNumber();
   });
 });

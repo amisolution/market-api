@@ -1,12 +1,18 @@
 {
     "pathParameters": {
-      "entity": "binance",
-      "proxy": "api/v3/ticker/price",
-      "proxy0": "api/v1/exchangeInfo",
+      "entity": "bitfinex",
+      "entity1": "binance",
+      "entity2": "bitfinex",
+      "proxy": "v1/pubticker/BTCUSD",
+      "proxy_binance1": "api/v3/ticker/price",
+      "proxy_binance2": "api/v1/exchangeInfo",
+      "proxy_bitfinex1": "v1/pubticker/BTCUSD",
+      "proxy_bitfinex2": "v1/symbols_details",
       "address": "0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef",
       "quantity": 2
     },
-    "queryStringParameters": {"symbol":"EOSETH"},
-    "queryStringParameters1": {},
-    "body": "{\"address\": \"0x0047615d4f065c1973ab091fe55276d83b27773e\"}"
+    "queryStringParameters": {},
+    "queryStringParameters_binance1": {"symbol":"EOSETH"},
+    "queryStringParameters_bitfinex1": {},
+    "body": "{\"address\": \"0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef\"}"
 }
