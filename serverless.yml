@@ -129,6 +129,15 @@ functions:
           method: get
           cors:
             origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             maxAge: 86400
   whitelistGet:
     handler: src/whitelist.get
@@ -141,6 +150,15 @@ functions:
           method: get
           cors:
             origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             maxAge: 86400
   ordersGet:
     handler: src/orders.get
@@ -152,6 +170,15 @@ functions:
           method: get
           cors:
             origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             maxAge: 86400
   ordersGetQuantity:
     handler: src/orders.get
@@ -163,6 +190,15 @@ functions:
           method: get
           cors:
             origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             maxAge: 86400
   proxyGet:
     handler: src/proxy.proxyAll
@@ -174,6 +210,15 @@ functions:
           method: get
           cors:
             origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
             maxAge: 86400
 
 #    The following are a few example events you can configure
