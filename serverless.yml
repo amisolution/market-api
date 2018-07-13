@@ -1,0 +1,222 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: 
+  name: market-api
+  # awsKmsKeyArn: arn:aws:kms:us-east-1:XXXXXX:key/some-hash
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+custom:
+  defaultStage: dev
+  profiles:
+    dev: market
+    test: market
+    prod: market
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 1024
+  timeout: 30
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${self:custom.profiles.${self:provider.stage}}
+  region: us-east-1
+  # role: arn:aws:iam::YourAccountNumber:role/YourIamRole
+  #environment:
+  #  OWNER_ADDRESS: ''
+  #  OWNER_PRIVATE_KEY: ''
+
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+package:
+  exclude:
+    - node_modules/**/*
+  include:
+    - node_modules/@0xproject/typescript-typings/**
+    - node_modules/@marketprotocol/marketjs/**
+    - node_modules/@marketprotocol/types/**
+    - node_modules/axios/**
+    - node_modules/bignumber.js/**
+    - node_modules/bip66/**
+    - node_modules/bn.js/**
+    - node_modules/brorand/**
+    - node_modules/create-hash/**
+    - node_modules/crypto-js/**
+    - node_modules/debug/**
+    - node_modules/elliptic/**
+    - node_modules/escodegen/**
+    - node_modules/estraverse/**
+    - node_modules/esutils/**
+    - node_modules/eth-lib/**
+    - node_modules/ethereumjs-util/**
+    - node_modules/ethjs-util/**
+    - node_modules/follow-redirects/**
+    - node_modules/hash.js/**
+    - node_modules/hmac-drbg/**
+    - node_modules/inherits/**
+    - node_modules/is-buffer/**
+    - node_modules/is-hex-prefixed/**
+    - node_modules/jsonpath/**
+    - node_modules/keccak/**
+    - node_modules/lodash.clonedeep/**
+    - node_modules/lodash.isempty/**
+    - node_modules/minimalistic-assert/**
+    - node_modules/minimalistic-crypto-utils/**
+    - node_modules/ms/**
+    - node_modules/rlp/**
+    - node_modules/safe-buffer/**
+    - node_modules/secp256k1/**
+    - node_modules/static-eval/**
+    - node_modules/strip-hex-prefix/**
+    - node_modules/underscore/**
+    - node_modules/utf8/**
+    - node_modules/web3/**
+    - node_modules/xhr2/**
+    - node_modules/xmlhttprequest/**
+
+functions:
+  indexGet:
+    handler: src/index.get
+    name: ${self:service.name}-${self:provider.stage}-index-get
+    description: Get the message at the root of the API
+    events:
+      - http:
+          path: /
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+  whitelistGet:
+    handler: src/whitelist.get
+    # onError: arn:aws:sns:us-east-1:XXXXXX:test
+    name: ${self:service.name}-${self:provider.stage}-whitelist-get
+    description: Get all whilelisted contracts
+    events:
+      - http:
+          path: whitelist
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+  ordersGet:
+    handler: src/orders.get
+    name: ${self:service.name}-${self:provider.stage}-orders-get
+    description: Get orders
+    events:
+      - http:
+          path: orders/{address}
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+  ordersGetQuantity:
+    handler: src/orders.get
+    name: ${self:service.name}-${self:provider.stage}-orders-get-quantity
+    description: Get orders
+    events:
+      - http:
+          path: orders/{address}/{quantity}
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+  proxyGet:
+    handler: src/proxy.proxyAll
+    name: ${self:service.name}-${self:provider.stage}-proxy-proxyAll
+    description: Proxy function for oracles
+    events:
+      - http:
+          path: proxy/{entity}/{proxy+}
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+#    events:
+#      - http:
+#          path: users/create
+#          method: get
+#      - s3: ${env:BUCKET}
+#      - schedule: rate(10 minutes)
+#      - sns: greeter-topic
+#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
+#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
+#      - iot:
+#          sql: "SELECT * FROM 'some_topic'"
+#      - cloudwatchEvent:
+#          event:
+#            source:
+#              - "aws.ec2"
+#            detail-type:
+#              - "EC2 Instance State-change Notification"
+#            detail:
+#              state:
+#                - pending
+#      - cloudwatchLog: '/aws/lambda/hello'
+#      - cognitoUserPool:
+#          pool: MyUserPool
+#          trigger: PreSignUp
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+#resources:
+#  Resources:
+#    NewResource:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: my-new-bucket
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"

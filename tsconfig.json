@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "lib": [ "es6", "dom" ],
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "sourceMap": true,
+    "allowJs": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "preserveConstEnums": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    ".serverless", 
+    "modules",
+    "node_modules",
+    "types", 
+    "build", 
+    "webpack" 
+  ],
+  "types": [ 
+    "typePatches",
+    "node_modules/@0xproject/typescript-typings",
+    "node_modules/@marketprotocol/types",
+    "node_modules/@types"
+  ]
+}
