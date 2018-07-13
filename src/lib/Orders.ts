@@ -1,15 +1,16 @@
 import Web3 from 'web3';
 import { BigNumber } from 'bignumber.js';
-let Account = require('eth-lib/lib/account');
-import { Market } from '@marketprotocol/marketjs';
-import { Proxy } from './Proxy';
+import { Market, Utils } from '@marketprotocol/marketjs';
+import { Oracle } from './Oracle';
 import { configRinkeby, constants, deployedContracts } from '../constants';
 
-// types
-import { SignedOrder } from '@marketprotocol/types';
+let cloneDeep = require('lodash.clonedeep');
+let Account = require('eth-lib/lib/account');
+let ethUtil = require('ethereumjs-util');
 
+// types
 import { OrdersResponse } from '../types/OrdersResponse';
-import { ProxyResponse } from '../types/ProxyResponse';
+import { OracleResponse } from '../types/OracleResponse';
 import { Provider } from '@0xproject/types';
 
 /**
@@ -52,175 +53,165 @@ export class Orders {
   // *****************************************************************
   // ****                     Public Methods                      ****
   // *****************************************************************
-  public async getOrders(): Promise<OrdersResponse> {
+  /**
+   * Produces and returns orders for a market contract address
+   * @param {string} marketContractAddress   Produce orders for this market contract
+   * @param {number} quantity                Number of orders to produce
+   * @returns {Promise<OrdersResponse>}      Returns orders
+   */
+  public async getOrders(
+    marketContractAddress: string,
+    quantity?: number
+  ): Promise<OrdersResponse> {
+    // Get the name of the contract
+    if (!marketContractAddress) {
+      this._ordersResponse.success = false;
+      this._ordersResponse.data = 'Missing market contract address';
+      return this._ordersResponse;
+    }
+    const marketContractName: string = await this._market.getMarketContractNameAsync(
+      marketContractAddress
+    );
+
+    const priceDecimalPlaces: BigNumber = await this._market.getMarketContractPriceDecimalPlacesAsync(
+      marketContractAddress
+    );
+
     // Create the signed order hash
     const expirationTimeStamp: BigNumber = new BigNumber(
       Math.floor(Date.now() / 1000) + 60 * 60
     );
 
-    // Create the bot order object
-    const botOrderObject: SignedOrder = {
-      contractAddress: '',
+    // Order size
+    let orderSize: number = 5;
+    if (quantity && quantity > 0) {
+      orderSize = quantity;
+    }
+
+    // Quantity size
+    const quantityBuy: BigNumber = new BigNumber(1);
+    const quantitySell: BigNumber = new BigNumber(-1);
+    const quantityRemaining: BigNumber = new BigNumber(1);
+
+    // Get the oracle query data for the contract
+    const oracle = new Oracle();
+    const oracleResult: OracleResponse = await oracle.getOracleDataAddress(
+      marketContractAddress
+    );
+    if (!oracleResult.success) {
+      this._ordersResponse.success = false;
+      this._ordersResponse.data = oracleResult.data;
+      return this._ordersResponse;
+    }
+    const currentPriceTimestamp = Date.now();
+    const currentPrice: BigNumber = new BigNumber(oracleResult.data);
+
+    // Create buy/sell orders, up to orderSize
+    const signedBotOrdersBuy = [];
+    const signedBotOrdersSell = [];
+    for (let i = 0; i < orderSize; i++) {
+      let bandWidthBuy = new BigNumber(Math.random() / 100);
+      let buyPrice: BigNumber = currentPrice.plus(
+        bandWidthBuy.times(currentPrice)
+      );
+      let bandWidthSell = new BigNumber(Math.random() / 100);
+      let sellPrice: BigNumber = currentPrice.minus(
+        bandWidthSell.times(currentPrice)
+      );
+
+      // Generate the buy orders
+      signedBotOrdersBuy.push(
+        await this._createSignedOrderAsync(
+          marketContractAddress,
+          expirationTimeStamp,
+          quantityBuy,
+          quantityRemaining,
+          buyPrice.shiftedBy(priceDecimalPlaces.toNumber()).decimalPlaces(0)
+        )
+      );
+
+      // Generate the buy orders
+      signedBotOrdersSell.push(
+        await this._createSignedOrderAsync(
+          marketContractAddress,
+          expirationTimeStamp,
+          quantitySell,
+          quantityRemaining,
+          sellPrice.shiftedBy(priceDecimalPlaces.toNumber()).decimalPlaces(0)
+        )
+      );
+    }
+
+    // Set the data for the response
+    const newOrderResponse: Object = {
+      contract: {
+        name: marketContractName,
+        address: marketContractAddress,
+        price: currentPrice
+          .shiftedBy(priceDecimalPlaces.toNumber())
+          .decimalPlaces(0),
+        priceDecimalPlaces: priceDecimalPlaces,
+        priceTimestamp: currentPriceTimestamp
+      },
+      buys: signedBotOrdersBuy,
+      sells: signedBotOrdersSell
+    };
+
+    this._ordersResponse.data = JSON.stringify(newOrderResponse);
+
+    // return signed orders
+    return this._ordersResponse;
+  }
+
+  /**
+   * Creates a new signed order
+   * @param {string} marketContractAddress    The market contract address
+   * @param {BigNumber} expirationTimeStamp   Expiration timestamp for the order
+   * @param {BigNumber} orderQuantity         Order quantity, +1 buy / -1 sell
+   * @param {BigNumber} quantityRemaining     Quantity remaining
+   * @param {BigNumber} offerPrice            What price is this order offered at?
+   * @returns {Object}                        Signed order
+   */
+  private async _createSignedOrderAsync(
+    marketContractAddress: string,
+    expirationTimeStamp: BigNumber,
+    orderQuantity: BigNumber,
+    quantityRemaining: BigNumber,
+    offerPrice: BigNumber
+  ): Promise<Object> {
+    let orderObject = cloneDeep({
+      contractAddress: marketContractAddress,
       expirationTimestamp: expirationTimeStamp,
       feeRecipient: constants.NULL_ADDRESS,
       maker: constants.OWNER_ADDRESS,
       makerFee: new BigNumber(0),
-      orderQty: new BigNumber(0),
-      price: new BigNumber(0),
-      remainingQty: new BigNumber(0),
-      salt: new BigNumber(0),
+      orderQty: orderQuantity,
+      price: offerPrice,
+      remainingQty: quantityRemaining,
+      salt: Utils.generatePseudoRandomSalt(),
       taker: constants.NULL_ADDRESS,
-      takerFee: new BigNumber(0),
-      ecSignature: {
-        v: 0,
-        r: '',
-        s: ''
-      }
-    };
-
-    // Width of the band as a percent
-    const bandWidth: Number = 0.005;
-
-    // Quantity size
-    const quantity: BigNumber = new BigNumber(1);
-
-    // Loop through contracts
-    const signedBotOrders: SignedOrder[] = deployedContracts[4].marketContracts.map(
-      async contract => {
-        // Get the oracle query for the contract
-        const oracleQuery: string = await this._getOracleQueryAsync(
-          contract.address
-        );
-        // console.log(`oracleQuery: ${oracleQuery}`);
-
-        // Get price for trading pair
-        const eventObject: Object = {
-          pathParameters: {
-            entity: 'overrideUrl',
-            action: oracleQuery
-          }
-        };
-        const proxy = new Proxy(eventObject);
-        const proxyResult: ProxyResponse = await proxy.getProxyData();
-        if (!proxyResult.success) {
-          this._ordersResponse.success = false;
-          this._ordersResponse.data = JSON.stringify(proxyResult.data);
-          return this._ordersResponse;
-        }
-        const currentPrice = new BigNumber(JSON.parse(proxyResult.data).price);
-        // console.log(`currentPrice: ${currentPrice}`);
-
-        // Set the properties on the bot order object
-        botOrderObject.contractAddress = contract.address;
-        botOrderObject.price = currentPrice;
-        // console.log(`signedBotOrder: ${JSON.stringify(botOrderObject)}`);
-
-        // return await this._createSignedOrderAsync(botOrderObject);
-        let signedBotOrder: SignedOrder = await this._createSignedOrderAsync(
-          botOrderObject
-        );
-
-        console.log(`signedBotOrder: ${JSON.stringify(signedBotOrder)}`);
-        return signedBotOrder;
-      }
-    );
-
-    // Set the data for the response
-    this._ordersResponse.data = JSON.stringify(signedBotOrders);
-
-    return this._ordersResponse;
-
-    // create bid and ask
-
-    // sign two orders, buy(+1) and sell(-1) side
-
-    // return signed orders
-  }
-
-  private async _createSignedOrderAsync(
-    orderObject: SignedOrder
-  ): Promise<SignedOrder> {
+      takerFee: new BigNumber(0)
+    });
     // Create the order hash
-    const orderHash = await this._market.createOrderHashAsync(
+    let orderHash = await this._market.createOrderHashAsync(
       deployedContracts[4].orderLibAddress,
       orderObject
     );
 
-    // ** Options to sign the orders **
-
-    // ** Old add to whitelist
-    // const web3 = new Web3(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY));
-    // const tx = {
-    //     from: process.env.OWNER_ADDRESS,
-    //     to: process.env.CONTRACT_ADDRESS,
-    //     gas: process.env.GAS_LIMIT,
-    //     gasPrice: process.env.GAS_PRICE,
-    //     data: method.encodeABI()
-    // };
-    // const signTransactionResult = await web3.eth.accounts.signTransaction(tx, process.env.OWNER_PRIVATE_KEY, (error, result) => result);
-    // const sendSignedTransactionResult = await  web3.eth.sendSignedTransaction(signTransactionResult.rawTransaction, (error, result) => result);
-
-    // ** secp256k1: https://github.com/cryptocoinjs/secp256k1-node
-    // const signatureObject = secp256k1.sign(orderHash, constants.OWNER_PRIVATE_KEY);
-    // orderObject.ecSignature = signatureObject;
-
-    // ** elliptic: https://github.com/indutny/elliptic
-    // const ec = new EC('secp256k1');
-    // const key = ec.genKeyPair();
-    // const signature = key.sign(orderHash);
-    // const derSign = signature.toDER();
-    // //console.log(`key: ${key.verify(orderHash, derSign)}`);
-    // const r = derSign.slice(0, 66);
-    // const s = `0x${derSign.slice(66, 130)}`;
-    // const web3 = new Web3();
-    // let v = web3.toDecimal(`0x${derSign.slice(130, 132)}`);
-    // if (v !== 27 && v !== 28) {
-    //   v += 27;
-    // }
-    // orderObject.ecSignature = { v, r, s };
-
-    // ** MARKET.js
-    // orderObject.ecSignature = this._market.signOrderHashAsync(
-    //   orderHash,
-    //   orderObject.maker
-    // );
-
-    // ** web3 0.20.6
-    // this._web3.Personal.unlockAccount(orderObject.maker); // unlockAccount is listed as a method, didn't get it to work
-    // orderObject.ecSignature = await this._web3.accounts.sign(orderObject.maker, orderHash);
-
-    // ** web3 1.0.0-beta.34
-    // const signedOrderHash = this._web3.eth.accounts.sign(orderHash, constants.OWNER_PRIVATE_KEY);
-    // orderObject. ecSignature = {
-    //   v: signedOrderHash.v,
-    //   r: signedOrderHash.r,
-    //   s: signedOrderHash.s
-    // };
-
-    // Get the account from the private key
-    let account = Account.fromPrivate(constants.OWNER_PRIVATE_KEY);
-    orderObject.maker = account.address;
-
-    // Sign the order hash
-    let signature = Account.sign(orderHash, constants.OWNER_PRIVATE_KEY);
+    // NOTE - we will have to clean this up somewhere eventually, but we have to prefix our orderHashes with
+    // "\x19Ethereum Signed Message:\n32" in order for them to be valid.
+    let signature = Account.sign(
+      ethUtil.bufferToHex(
+        ethUtil.hashPersonalMessage(ethUtil.toBuffer(orderHash))
+      ),
+      constants.OWNER_PRIVATE_KEY
+    );
     let vrs = Account.decodeSignature(signature);
-
-    // Set the ECSignature
     orderObject.ecSignature = { v: vrs[0], r: vrs[1], s: vrs[2] };
 
-    // Return the signed order
     return orderObject;
   }
 
-  /**
-   * Get the oracle query for the MarketContract
-   * @param {string} marketAddress   The MarketContract address
-   * @returns {Promise<string>}      Oracle query URL, specific to Binance at the moment
-   */
-  private async _getOracleQueryAsync(marketAddress: string): Promise<string> {
-    const oracleQuery = await this._market.getOracleQuery(marketAddress);
-    return oracleQuery.replace(/^.*\((.*)\).*/, '$1');
-  }
   // endregion //Public Methods
 
   // region Private Methods

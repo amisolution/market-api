@@ -12,7 +12,7 @@
 # Happy Coding!
 
 service: 
-  name: market-api-simex
+  name: market-api
   # awsKmsKeyArn: arn:aws:kms:us-east-1:XXXXXX:key/some-hash
 
 # You can pin your service to only deploy with a specific Serverless version
@@ -39,20 +39,9 @@ provider:
   profile: ${self:custom.profiles.${self:provider.stage}}
   region: us-east-1
   # role: arn:aws:iam::YourAccountNumber:role/YourIamRole
-  environment:
-    OWNER_ADDRESS: '0x361ffaa1c30267ffb4c74c87fd50751b038d20b4'
-    OWNER_PRIVATE_KEY: '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f'
-    MARKET_CONTRACT_ADDRESS_1: '0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef'
-    MARKET_CONTRACT_ADDRESS_2: ''
-    MARKET_CONTRACT_ADDRESS_3: ''
-    MARKET_CONTRACT_ADDRESS_4: ''
-    MARKET_CONTRACT_ADDRESS_5: ''
-    COLLATERAL_POOL_CONTRACT_ADDRESS_1: '0xf8d557eeb0e4961a3de2ada3f18c80792dff4dae'
-    COLLATERAL_POOL_CONTRACT_ADDRESS_2: ''
-    COLLATERAL_POOL_CONTRACT_ADDRESS_3: ''
-    COLLATERAL_POOL_CONTRACT_ADDRESS_4: ''
-    COLLATERAL_POOL_CONTRACT_ADDRESS_5: ''
-
+  #environment:
+  #  OWNER_ADDRESS: ''
+  #  OWNER_PRIVATE_KEY: ''
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -92,13 +81,55 @@ package:
     - node_modules/@marketprotocol/types/**
     - node_modules/axios/**
     - node_modules/bignumber.js/**
+    - node_modules/bip66/**
+    - node_modules/bn.js/**
+    - node_modules/brorand/**
+    - node_modules/create-hash/**
     - node_modules/crypto-js/**
+    - node_modules/debug/**
+    - node_modules/elliptic/**
+    - node_modules/escodegen/**
+    - node_modules/estraverse/**
+    - node_modules/esutils/**
+    - node_modules/eth-lib/**
+    - node_modules/ethereumjs-util/**
+    - node_modules/ethjs-util/**
+    - node_modules/follow-redirects/**
+    - node_modules/hash.js/**
+    - node_modules/hmac-drbg/**
+    - node_modules/inherits/**
+    - node_modules/is-buffer/**
+    - node_modules/is-hex-prefixed/**
+    - node_modules/jsonpath/**
+    - node_modules/keccak/**
+    - node_modules/lodash.clonedeep/**
+    - node_modules/lodash.isempty/**
+    - node_modules/minimalistic-assert/**
+    - node_modules/minimalistic-crypto-utils/**
+    - node_modules/ms/**
+    - node_modules/rlp/**
+    - node_modules/safe-buffer/**
+    - node_modules/secp256k1/**
+    - node_modules/static-eval/**
+    - node_modules/strip-hex-prefix/**
+    - node_modules/underscore/**
     - node_modules/utf8/**
     - node_modules/web3/**
     - node_modules/xhr2/**
     - node_modules/xmlhttprequest/**
 
 functions:
+  indexGet:
+    handler: src/index.get
+    name: ${self:service.name}-${self:provider.stage}-index-get
+    description: Get the message at the root of the API
+    events:
+      - http:
+          path: /
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
   whitelistGet:
     handler: src/whitelist.get
     # onError: arn:aws:sns:us-east-1:XXXXXX:test
@@ -108,45 +139,42 @@ functions:
       - http:
           path: whitelist
           method: get
-  #whitelistAdd:
-  #  handler: src/whitelist.add
-  #  name: ${self:service.name}-${self:provider.stage}-whitelist-add
-  #  description: Add an addresses to the whitelist
-  #  timeout: 300
-  #  events:
-  #    - http:
-  #        path: whitelist
-  #        method: post
+          cors:
+            origin: '*'
+            maxAge: 86400
   ordersGet:
     handler: src/orders.get
     name: ${self:service.name}-${self:provider.stage}-orders-get
     description: Get orders
-    memorySize: 1024
-    timeout: 300
     events:
       - http:
-          path: orders
+          path: orders/{address}
           method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
+  ordersGetQuantity:
+    handler: src/orders.get
+    name: ${self:service.name}-${self:provider.stage}-orders-get-quantity
+    description: Get orders
+    events:
+      - http:
+          path: orders/{address}/{quantity}
+          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
   proxyGet:
     handler: src/proxy.proxyAll
     name: ${self:service.name}-${self:provider.stage}-proxy-proxyAll
     description: Proxy function for oracles
-    memorySize: 1024
-    timeout: 300
     events:
       - http:
-          path: proxy/{entity}/{action}
+          path: proxy/{entity}/{proxy+}
           method: get
-  collateralPoolGet:
-    handler: src/collateralpool.get
-    name: ${self:service.name}-${self:provider.stage}-collateralpool-get
-    description: Get the collateral pool contract address
-    memorySize: 1024
-    timeout: 300
-    events:
-      - http:
-          path: collateralpool/{address}
-          method: get
+          cors:
+            origin: '*'
+            maxAge: 86400
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

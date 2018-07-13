@@ -1,5 +1,6 @@
 import { Orders } from './lib/Orders';
 import { response } from './constants';
+import { isEventEmpty } from './utils';
 
 // types
 import { OrdersResponse } from './types/OrdersResponse';
@@ -20,9 +21,24 @@ const get: Handler = async (
   context: Context,
   callback: Callback
 ) => {
+  // Get the path parameter for the address
+  let marketContractAddress: string = '';
+  if (!isEventEmpty(event, '$.pathParameters.address')) {
+    marketContractAddress = event.pathParameters.address;
+  }
+
+  // Get the path parameter for the address
+  let quantity: number = 0;
+  if (!isEventEmpty(event, '$.pathParameters.quantity')) {
+    quantity = parseInt(event.pathParameters.quantity, 10);
+  }
+
   // Hand off to the Orders class
   const orders = new Orders();
-  const signedOrders: OrdersResponse = await orders.getOrders();
+  const signedOrders: OrdersResponse = await orders.getOrders(
+    marketContractAddress,
+    quantity
+  );
 
   // Set response body
   response.body = signedOrders.data;

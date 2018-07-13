@@ -1,11 +1,12 @@
 {
-    "hello": "MARKET",
     "pathParameters": {
       "entity": "binance",
-      "action": "api/v3/ticker/price?symbol=EOSETH",
-      "action1": "api/v1/exchangeInfo",
-      "address": "0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef"
+      "proxy": "api/v3/ticker/price",
+      "proxy0": "api/v1/exchangeInfo",
+      "address": "0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef",
+      "quantity": 2
     },
-    "queryStringParameters": {},
+    "queryStringParameters": {"symbol":"EOSETH"},
+    "queryStringParameters1": {},
     "body": "{\"address\": \"0x0047615d4f065c1973ab091fe55276d83b27773e\"}"
 }

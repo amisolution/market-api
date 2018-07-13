@@ -1,4 +1,4 @@
-import { MARKETProtocolConfig } from '@marketprotocol/types';
+import { MARKETProtocolConfig } from '@marketprotocol/marketjs';
 import { Response } from './types/Response';
 
 export const constants = {

@@ -1,11 +1,8 @@
-import Web3 from 'web3';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
-
-import { Market } from '@marketprotocol/marketjs';
-import { configRinkeby, constants, response } from './constants';
+import { response } from './constants';
 
 /**
- * Get the all addresses in the whitelist
+ * Get the index message of the API
  *
  * @method get
  * @param {APIGatewayProxyEvent} event   Events published by the supported AWS service,
@@ -21,19 +18,14 @@ const get: Handler = async (
   context: Context,
   callback: Callback
 ) => {
-  const market: Market = new Market(
-    new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY),
-    configRinkeby
-  );
-
-  try {
-    const result = await market.getAddressWhiteListAsync();
-    response.headers['Content-Type'] = 'application/json; charset=utf-8';
-    response.body = JSON.stringify(result);
-  } catch (error) {
-    response.statusCode = 502;
-    response.body = error.message;
-  }
+  const message: Object = {
+    name: 'MARKET API Gateway',
+    description: 'Welcome to the MARKET API Gateway',
+    version: '0.0.4',
+    docs: 'https://docs.marketprotocol.io'
+  };
+  response.headers['Content-Type'] = 'application/json; charset=utf-8';
+  response.body = JSON.stringify(message);
 
   callback(null, response);
 };

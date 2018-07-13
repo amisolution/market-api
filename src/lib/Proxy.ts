@@ -56,7 +56,7 @@ export class Proxy {
     let entity = 'not defined';
 
     // Get the path parameter.
-    if (!isEventEmpty(this._event, 'pathParameters', 'entity')) {
+    if (!isEventEmpty(this._event, '$.pathParameters.entity')) {
       entity = this._event.pathParameters.entity;
     }
 
@@ -68,11 +68,11 @@ export class Proxy {
         // Define the proxy result
         let proxyResult;
 
-        // Get the action
-        const action: string = this._getAction(this._event);
-        if (!action) {
+        // Get the proxy parameters
+        const proxy: string = this._getProxyParameters(this._event);
+        if (!proxy) {
           this._proxyResponse.success = false;
-          this._proxyResponse.data = `Missing action`;
+          this._proxyResponse.data = `Missing proxy`;
           return this._proxyResponse;
         }
 
@@ -81,7 +81,7 @@ export class Proxy {
 
         // Check for valid URL
         const url =
-          this._binanceUrl + action + (queryParams ? `?${queryParams}` : '');
+          this._binanceUrl + proxy + (queryParams ? `?${queryParams}` : '');
         if (!isUrl(url)) {
           this._proxyResponse.success = false;
           this._proxyResponse.data = `Invalid URL: ${url}`;
@@ -101,41 +101,6 @@ export class Proxy {
         this._proxyResponse.data = JSON.stringify(
           typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
         );
-        break;
-      }
-      case 'overrideUrl': {
-        // Define the proxy result
-        let proxyResult;
-
-        // Get the action
-        const url: string = this._getAction(this._event);
-        if (!url) {
-          this._proxyResponse.success = false;
-          this._proxyResponse.data = `Missing action`;
-          return this._proxyResponse;
-        }
-
-        // Check for valid URL
-        if (!isUrl(url)) {
-          this._proxyResponse.success = false;
-          this._proxyResponse.data = `Invalid URL: ${url}`;
-          return this._proxyResponse;
-        }
-
-        // Try to get proxy data
-        try {
-          proxyResult = await axios(url);
-        } catch (error) {
-          this._proxyResponse.success = false;
-          this._proxyResponse.data = `Failure getting data from: ${url}, error: ${error}`;
-          return this._proxyResponse;
-        }
-
-        // Check for the data property
-        this._proxyResponse.data = JSON.stringify(
-          typeof proxyResult.data !== 'undefined' ? proxyResult.data : {}
-        );
-
         break;
       }
       default: {
@@ -154,17 +119,17 @@ export class Proxy {
   // ****                     Private Methods                     ****
   // *****************************************************************
   /**
-   * Handle/get the action parameter
+   * Handle/get the proxy parameter
    * @param {APIGatewayProxyEvent} event     AWS API gateway proxy event.
    * @returns {string}                       The path parameters for proxy.
    */
-  private _getAction(event: APIGatewayProxyEvent): string {
-    // get access to the path parameter action
-    let action = '';
-    if (!isEventEmpty(event, 'pathParameters', 'action')) {
-      action = event.pathParameters.action;
+  private _getProxyParameters(event: APIGatewayProxyEvent): string {
+    // get access to the proxy path parameter
+    let proxy = '';
+    if (!isEventEmpty(event, '$.pathParameters.proxy')) {
+      proxy = event.pathParameters.proxy;
     }
-    return action;
+    return proxy;
   }
   /**
    * Handle url parameters
@@ -176,7 +141,7 @@ export class Proxy {
     // { "queryStringParameters":{"a":"1","b":"2","c":"3"} }
     // get access to the query parameters
     let queryParams = '';
-    if (!isEventEmpty(event, 'queryStringParameters')) {
+    if (!isEventEmpty(event, '$.queryStringParameters')) {
       queryParams = Object.keys(event.queryStringParameters)
         .reduce((a: string[], k: string) => {
           a.push(k + '=' + encodeURIComponent(event.queryStringParameters[k]));
