@@ -11,8 +11,10 @@
       "address": "0x8b229978fd8c2740ecb9adce3110953019ff1a06",
       "address_settled": "0x59c6644d455d333dd327c86c8f61faedfb370ace",
       "address_invalid": "0x3c60dfa7389e26dc63d699e2be8a90a17b6dbdec",
-      "quantity": 2
+      "quantity": 2,
+      "id": 2
     },
+    "httpMethod": "GET",
     "queryStringParameters": {},
     "queryStringParameters_binance1": {"symbol":"EOSETH"},
     "queryStringParameters_bitfinex1": {},

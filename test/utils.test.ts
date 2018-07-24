@@ -1,4 +1,4 @@
-import { isEventEmpty, isUrl } from '../src/utils';
+import { camelToSnake, isAddress, isEventEmpty, isUrl } from '../src/utils';
 
 describe('utils', () => {
   it('Check for a valid URL', () => {
@@ -12,6 +12,19 @@ describe('utils', () => {
     expect(isUrl('http://google.com/search/results')).toBe(true);
     expect(isUrl('http://google.com/search/results?s=1323&p=yoyo')).toBe(true);
   });
+
+  it('Validates addresses', () => {
+    expect(isAddress('0xc1912fee45d61c87cc5ea59dae31190fffff232d')).toBe(true);
+    expect(isAddress('0xC1912FEE45D61C87CC5EA59DAE31190FFFFF232D')).toBe(true);
+    expect(isAddress('0xC1912FEE45D61c87CC5eA59DAE31190FFFFF232D')).toBe(true);
+    expect(isAddress('0xc1912fee45d61c87cc5ea59dae3119zfffff232d')).toBe(false);
+    expect(isAddress('0xc1912fee45d61c87cc5ea59dae31190fffff232d1')).toBe(
+      false
+    );
+    expect(isAddress('c1912fee45d61c87cc5ea59dae31190fffff232d')).toBe(true);
+    expect(isAddress('c1912fee45d61c87cc5ea59dae31190fffff232')).toBe(false);
+  });
+
   it('Check for an empty event object', () => {
     const eventEmpty = {};
     const eventObjEmpty = {
@@ -57,5 +70,14 @@ describe('utils', () => {
     expect(
       isEventEmpty(eventObjQueryStringNotEmpty, '$.queryStringParameters')
     ).toBe(false);
+  });
+
+  it('Converts to snake case', () => {
+    expect(camelToSnake('aaaa')).toBe('aaaa');
+    expect(camelToSnake('Aaaa')).toBe('aaaa');
+    expect(camelToSnake('AAaa')).toBe('a_aaa');
+    expect(camelToSnake('aAaA')).toBe('a_aa_a');
+    expect(camelToSnake('toLocaleDateString')).toBe('to_locale_date_string');
+    expect(camelToSnake('ABCDE')).toBe('a_b_c_d_e');
   });
 });

@@ -103,9 +103,11 @@ package:
     - node_modules/is-buffer/**
     - node_modules/is-hex-prefixed/**
     - node_modules/jsonpath/**
+    - node_modules/jsonschema/**
     - node_modules/keccak/**
     - node_modules/lodash.clonedeep/**
     - node_modules/lodash.isempty/**
+    - node_modules/lodash.values/**
     - node_modules/minimalistic-assert/**
     - node_modules/minimalistic-crypto-utils/**
     - node_modules/ms/**
@@ -235,14 +237,94 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: false
             maxAge: 86400
-  contractsGet:
-    handler: src/contracts.get
-    name: ${self:service.name}-${self:provider.stage}-contracts-get
-    description: Get requests for contracts table
+  contractsGetAll:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-get-all
+    description: Gets all contracts from the contracts table
     events:
       - http:
           path: contracts
           method: get
+          cors:
+            origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+            maxAge: 86400
+  contractsGet:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-get
+    description: Gets a contract from the contracts table
+    events:
+      - http:
+          path: contracts/{id}
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+            maxAge: 86400
+  contractsPost:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-post
+    description: Adds a new contract to the contracts table
+    events:
+      - http:
+          path: contracts
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+            maxAge: 86400
+  contractsPut:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-put
+    description: Changes a contract in the contracts table
+    events:
+      - http:
+          path: contracts/{id}
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+            maxAge: 86400
+  contractsDelete:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-delete
+    description: Soft delete a contract in the contracts table
+    events:
+      - http:
+          path: contracts/{id}
+          method: delete
           cors:
             origin: '*'
             headers:

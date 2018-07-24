@@ -6,7 +6,7 @@ import { ContractsResponse } from './types/Responses';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 /**
- * Get the all the contracts in the contracts table.
+ * Handles the contracts in the contracts table.
  *
  * @method get
  * @param {APIGatewayProxyEvent} event   Events published by the supported AWS service,
@@ -17,16 +17,41 @@ import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
  * @param {Callback} callback            Use it to explicitly return information back to the caller
  * @returns {Handler}                    Returns the Handler
  */
-const get: Handler = async (
+const allMethods: Handler = async (
   event: APIGatewayProxyEvent,
   context: Context,
   callback: Callback
 ) => {
-  // Hand off to the Contracts class
-  const contracts = new Contracts(event);
-  const contractsResult: ContractsResponse = await contracts.getContractsData();
+  let contracts;
+  let contractsResult: ContractsResponse = {
+    success: true,
+    data: ''
+  };
 
-  // Set the response body
+  // Get the http method and hand off to the Contracts class
+  switch (event.httpMethod) {
+    case 'GET':
+      contracts = new Contracts(event);
+      contractsResult = await contracts.getContractsData();
+      break;
+    case 'POST':
+      contracts = new Contracts(event);
+      contractsResult = await contracts.postContractData();
+      break;
+    case 'PUT':
+      contracts = new Contracts(event);
+      contractsResult = await contracts.putContractData();
+      break;
+    case 'DELETE':
+      contracts = new Contracts(event);
+      contractsResult = await contracts.deleteContractData();
+      break;
+    default:
+      contractsResult.success = false;
+      contractsResult.data = `Unsupported HTTP method: ${event.httpMethod}`;
+  }
+
+  // Assign the response body
   response.body = contractsResult.data;
 
   // Determine if success or error
@@ -38,4 +63,4 @@ const get: Handler = async (
   callback(null, response);
 };
 
-export { get };
+export { allMethods };

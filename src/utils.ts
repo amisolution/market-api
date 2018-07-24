@@ -61,7 +61,7 @@ const isAddress = function(address: string): boolean {
     /^(0x)?[0-9a-f]{40}$/.test(address) ||
     /^(0x)?[0-9A-F]{40}$/.test(address)
   ) {
-    // If it's all small caps or all all caps, return true
+    // If it's all small caps or all caps, return true
     return true;
   } else {
     // Otherwise check each case
@@ -94,4 +94,30 @@ const isChecksumAddress = function(address: string): boolean {
   return true;
 };
 
-export { isAddress, isChecksumAddress, isEventEmpty, isUrl };
+/**
+ * Converts camel to snake case
+ * @param {string} name       Name to convert
+ * @returns {string}          The converted name
+ */
+const camelToSnake = function(name: string): string {
+  const upperChars = name.match(/([A-Z])/g);
+  if (!upperChars) {
+    return name;
+  }
+
+  let str = name.toString();
+  for (let i = 0, n = upperChars.length; i < n; i++) {
+    str = str.replace(
+      new RegExp(upperChars[i]),
+      '_' + upperChars[i].toLowerCase()
+    );
+  }
+
+  if (str.slice(0, 1) === '_') {
+    str = str.slice(1);
+  }
+
+  return str;
+};
+
+export { camelToSnake, isAddress, isChecksumAddress, isEventEmpty, isUrl };
