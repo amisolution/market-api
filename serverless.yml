@@ -85,6 +85,7 @@ package:
     - node_modules/bip66/**
     - node_modules/bn.js/**
     - node_modules/brorand/**
+    - node_modules/buffer-writer/**
     - node_modules/create-hash/**
     - node_modules/crypto-js/**
     - node_modules/debug/**
@@ -108,16 +109,29 @@ package:
     - node_modules/minimalistic-assert/**
     - node_modules/minimalistic-crypto-utils/**
     - node_modules/ms/**
+    - node_modules/packet-reader/**
+    - node_modules/pg/**
+    - node_modules/pg-connection-string/**
+    - node_modules/pg-pool/**
+    - node_modules/pg-types/**
+    - node_modules/pgpass/**
+    - node_modules/postgres-array/**
+    - node_modules/postgres-bytea/**
+    - node_modules/postgres-date/**
+    - node_modules/postgres-interval/**
     - node_modules/rlp/**
     - node_modules/safe-buffer/**
     - node_modules/secp256k1/**
+    - node_modules/split/**
     - node_modules/static-eval/**
     - node_modules/strip-hex-prefix/**
+    - node_modules/through/**
     - node_modules/underscore/**
     - node_modules/utf8/**
     - node_modules/web3/**
     - node_modules/xhr2/**
     - node_modules/xmlhttprequest/**
+    - node_modules/xtend/**
 
 functions:
   indexGet:

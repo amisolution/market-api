@@ -2,7 +2,7 @@ import { Proxy } from './lib/Proxy';
 import { response } from './constants';
 
 // types
-import { ProxyResponse } from './types/ProxyResponse';
+import { ProxyResponse } from './types/Responses';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 /**

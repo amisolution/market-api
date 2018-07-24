@@ -32,3 +32,11 @@ export interface ProxyResponse {
   success: boolean;
   data: string;
 }
+
+/**
+ * Interface for the contracts response
+ */
+export interface ContractsResponse {
+  success: boolean;
+  data: string;
+}
