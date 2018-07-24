@@ -23,6 +23,7 @@ each topic below can be found in the documentation. It's worth reading!
 ```
 $ mkdir market-api && cd market-api
 $ git clone https://github.com/MARKETProtocol/market-api.git .
+$ npm install -g serverless
 $ npm install
 ```
 
@@ -140,4 +141,12 @@ GET /proxy/binance/api/v3/ticker/price HTTP/1.1
 * Response: `200`, `400`, `500`, or `502`, along with additional data.
 ```
 GET /proxy/binance/api/v3/ticker/price HTTP/1.1
+```
+
+### `/proxy/bitfinex/{*}`
+* Supports path and query parameter pass through for Bitfinex.
+* `{*}` would be replaced by `v1/pubticker/BTCUSD`. Query parameters are also supported. 
+* Response: `200`, `400`, `500`, or `502`, along with additional data.
+```
+GET /proxy/bitfinex/v1/pubticker/BTCUSD HTTP/1.1
 ```

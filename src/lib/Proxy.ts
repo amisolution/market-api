@@ -2,7 +2,7 @@ import axios from 'axios';
 import { isEventEmpty, isUrl } from '../utils';
 
 // types
-import { ProxyResponse } from '../types/ProxyResponse';
+import { ProxyResponse } from '../types/Responses';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 /**

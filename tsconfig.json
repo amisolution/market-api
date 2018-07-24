@@ -19,7 +19,11 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": [
+      "node_modules/@0xproject/typescript-typings/types",
+      "node_modules/@types"
+    ]
   },
   "include": [
     "src/**/*"
@@ -31,11 +35,5 @@
     "types", 
     "build", 
     "webpack" 
-  ],
-  "types": [ 
-    "typePatches",
-    "node_modules/@0xproject/typescript-typings",
-    "node_modules/@marketprotocol/types",
-    "node_modules/@types"
   ]
 }

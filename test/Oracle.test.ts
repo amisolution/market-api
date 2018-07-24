@@ -2,14 +2,14 @@ import { Oracle } from '../src/lib/Oracle';
 import { deployedContracts } from '../src/constants';
 
 // types
-import { OracleResponse } from '../src/types/OracleResponse';
+import { OracleResponse } from '../src/types/Responses';
 
 describe('Oracle', () => {
   const oracle = new Oracle();
 
   it('Query is valid using address', async () => {
     const result: OracleResponse = await oracle.getOracleDataAddress(
-      deployedContracts[4].marketContracts[0].address
+      deployedContracts[4][0].address
     );
     expect(result).toBeDefined();
     expect(result).toHaveProperty('success');

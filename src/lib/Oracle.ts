@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import axios from 'axios';
 import { Market } from '@marketprotocol/marketjs';
-import { OracleResponse } from '../types/OracleResponse';
+import { OracleResponse } from '../types/Responses';
 import { configRinkeby, constants } from '../constants';
 import { isUrl } from '../utils';
 
@@ -55,7 +55,7 @@ export class Oracle {
     marketAddress: string
   ): Promise<OracleResponse> {
     // Get the contract oracle query
-    const oracleQuery = await this._market.getOracleQuery(marketAddress);
+    const oracleQuery = await this._market.getOracleQueryAsync(marketAddress);
     return this._getOracleData(oracleQuery);
   }
 

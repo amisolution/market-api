@@ -4,6 +4,13 @@ node_modules
 .vscode
 .idea
 .env
-.build
 .serverless
 coverage
+
+# Ignore JS files
+src/**/*.js
+src/**/*.js.map
+test/**/*.js
+test/**/*.js.map
+types/**/*.js
+types/**/*.js.map

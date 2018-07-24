@@ -77,6 +77,7 @@ package:
     - node_modules/**/*
   include:
     - node_modules/@0xproject/typescript-typings/**
+    - node_modules/@marketprotocol/abis/**
     - node_modules/@marketprotocol/marketjs/**
     - node_modules/@marketprotocol/types/**
     - node_modules/axios/**

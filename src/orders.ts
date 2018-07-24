@@ -3,7 +3,7 @@ import { response } from './constants';
 import { isEventEmpty } from './utils';
 
 // types
-import { OrdersResponse } from './types/OrdersResponse';
+import { OrdersResponse } from './types/Responses';
 import { APIGatewayProxyEvent, Callback, Context, Handler } from 'aws-lambda';
 
 /**

@@ -8,7 +8,9 @@
       "proxy_binance2": "api/v1/exchangeInfo",
       "proxy_bitfinex1": "v1/pubticker/BTCUSD",
       "proxy_bitfinex2": "v1/symbols_details",
-      "address": "0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef",
+      "address": "0x8b229978fd8c2740ecb9adce3110953019ff1a06",
+      "address_settled": "0x59c6644d455d333dd327c86c8f61faedfb370ace",
+      "address_invalid": "0x3c60dfa7389e26dc63d699e2be8a90a17b6dbdec",
       "quantity": 2
     },
     "queryStringParameters": {},

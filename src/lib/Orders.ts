@@ -2,15 +2,14 @@ import Web3 from 'web3';
 import { BigNumber } from 'bignumber.js';
 import { Market, Utils } from '@marketprotocol/marketjs';
 import { Oracle } from './Oracle';
-import { configRinkeby, constants, deployedContracts } from '../constants';
+import { configRinkeby, constants } from '../constants';
 
 let cloneDeep = require('lodash.clonedeep');
 let Account = require('eth-lib/lib/account');
 let ethUtil = require('ethereumjs-util');
 
 // types
-import { OrdersResponse } from '../types/OrdersResponse';
-import { OracleResponse } from '../types/OracleResponse';
+import { OracleResponse, OrdersResponse } from '../types/Responses';
 import { Provider } from '@0xproject/types';
 
 /**
@@ -23,7 +22,6 @@ export class Orders {
   // *****************************************************************
   private _ordersResponse: OrdersResponse;
   private readonly _market: Market;
-  private readonly _web3: Web3;
   // endregion // members
 
   // region Constructors
@@ -35,7 +33,6 @@ export class Orders {
       constants.PROVIDER_URL_RINKEBY
     );
     this._market = new Market(provider, configRinkeby);
-    this._web3 = new Web3(provider);
     this._ordersResponse = {
       success: true,
       data: ''
@@ -63,12 +60,21 @@ export class Orders {
     marketContractAddress: string,
     quantity?: number
   ): Promise<OrdersResponse> {
-    // Get the name of the contract
+    // Check for an address
     if (!marketContractAddress) {
       this._ordersResponse.success = false;
       this._ordersResponse.data = 'Missing market contract address';
       return this._ordersResponse;
     }
+
+    // Check for a valid contract
+    if (!(await this._isContractValid(marketContractAddress))) {
+      this._ordersResponse.success = false;
+      this._ordersResponse.data = `${marketContractAddress} is not a valid address: not whitelisted, settled/expired.`;
+      return this._ordersResponse;
+    }
+
+    // Get the name of the contract
     const marketContractName: string = await this._market.getMarketContractNameAsync(
       marketContractAddress
     );
@@ -111,11 +117,11 @@ export class Orders {
     const signedBotOrdersSell = [];
     for (let i = 0; i < orderSize; i++) {
       let bandWidthBuy = new BigNumber(Math.random() / 100);
-      let buyPrice: BigNumber = currentPrice.plus(
+      let buyPrice: BigNumber = currentPrice.minus(
         bandWidthBuy.times(currentPrice)
       );
       let bandWidthSell = new BigNumber(Math.random() / 100);
-      let sellPrice: BigNumber = currentPrice.minus(
+      let sellPrice: BigNumber = currentPrice.plus(
         bandWidthSell.times(currentPrice)
       );
 
@@ -153,8 +159,8 @@ export class Orders {
         priceDecimalPlaces: priceDecimalPlaces,
         priceTimestamp: currentPriceTimestamp
       },
-      buys: signedBotOrdersBuy,
-      sells: signedBotOrdersSell
+      bids: signedBotOrdersBuy,
+      asks: signedBotOrdersSell
     };
 
     this._ordersResponse.data = JSON.stringify(newOrderResponse);
@@ -162,6 +168,13 @@ export class Orders {
     // return signed orders
     return this._ordersResponse;
   }
+
+  // endregion //Public Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
 
   /**
    * Creates a new signed order
@@ -194,7 +207,7 @@ export class Orders {
     });
     // Create the order hash
     let orderHash = await this._market.createOrderHashAsync(
-      deployedContracts[4].orderLibAddress,
+      configRinkeby.orderLibAddress,
       orderObject
     );
 
@@ -212,12 +225,35 @@ export class Orders {
     return orderObject;
   }
 
-  // endregion //Public Methods
+  /**
+   * Verify a contract address is valid, part of the whitelist and not
+   *   expired or settled.
+   * @param {string} address       A market contract address.
+   * @returns {Promise<boolean>}   True/false
+   */
+  private async _isContractValid(address: string): Promise<boolean> {
+    // Verify it's part of the whitelist
+    const whitelist: string[] = await this._market.getAddressWhiteListAsync();
+    if (whitelist.indexOf(address) < 0) {
+      return false;
+    }
 
-  // region Private Methods
-  // *****************************************************************
-  // ****                     Private Methods                     ****
-  // *****************************************************************
+    // Is the contract settled?
+    if (await this._market.isContractSettledAsync(address)) {
+      return false;
+    }
+
+    // Is the contract expired?
+    const contractExpiration: BigNumber = await this._market.getContractExpirationAsync(
+      address
+    );
+    if (Math.round(Date.now() / 1000) > contractExpiration.toNumber()) {
+      return false;
+    }
+
+    return true;
+  }
+
   // endregion //Private Methods
 
   // region Event Handlers

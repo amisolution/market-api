@@ -2,7 +2,7 @@ import { Proxy } from '../src/lib/Proxy';
 import { toBeNumber, toBeObject } from 'jest-extended';
 
 // types
-import { ProxyResponse } from '../src/types/ProxyResponse';
+import { ProxyResponse } from '../src/types/Responses';
 
 describe('Proxy', () => {
   const entityIsMissing: Object = { pathParameters: {} };
