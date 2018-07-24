@@ -20,7 +20,9 @@ CREATE TABLE public.contracts
     last_queried_price bigint,
     qty_multiplier bigint,
     reference_asset character varying(255) COLLATE pg_catalog."default",
-    is_whitelisted boolean
+    is_whitelisted boolean,
+    id bigint NOT NULL DEFAULT nextval('contracts_id_seq'::regclass),
+    CONSTRAINT id PRIMARY KEY (id)
 )
 WITH (
     OIDS = FALSE
