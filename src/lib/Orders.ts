@@ -83,6 +83,8 @@ export class Orders {
       marketContractAddress
     );
 
+    // add collateralTokenName and collateralTokenAddress
+
     // Create the signed order hash
     const expirationTimeStamp: BigNumber = new BigNumber(
       Math.floor(Date.now() / 1000) + 60 * 60
@@ -97,7 +99,8 @@ export class Orders {
     // Quantity size
     const quantityBuy: BigNumber = new BigNumber(1);
     const quantitySell: BigNumber = new BigNumber(-1);
-    const quantityRemaining: BigNumber = new BigNumber(1);
+    const quantityBuyRemaining: BigNumber = quantityBuy;
+    const quantitySellRemaining: BigNumber = quantitySell;
 
     // Get the oracle query data for the contract
     const oracle = new Oracle();
@@ -131,7 +134,7 @@ export class Orders {
           marketContractAddress,
           expirationTimeStamp,
           quantityBuy,
-          quantityRemaining,
+          quantityBuyRemaining,
           buyPrice.shiftedBy(priceDecimalPlaces.toNumber()).decimalPlaces(0)
         )
       );
@@ -142,7 +145,7 @@ export class Orders {
           marketContractAddress,
           expirationTimeStamp,
           quantitySell,
-          quantityRemaining,
+          quantitySellRemaining,
           sellPrice.shiftedBy(priceDecimalPlaces.toNumber()).decimalPlaces(0)
         )
       );
@@ -201,7 +204,7 @@ export class Orders {
       orderQty: orderQuantity,
       price: offerPrice,
       remainingQty: quantityRemaining,
-      salt: Utils.generatePseudoRandomSalt(),
+      salt: Utils.generatePseudoRandomSalt().toFixed(0),
       taker: constants.NULL_ADDRESS,
       takerFee: new BigNumber(0)
     });
@@ -221,6 +224,12 @@ export class Orders {
     );
     let vrs = Account.decodeSignature(signature);
     orderObject.ecSignature = { v: vrs[0], r: vrs[1], s: vrs[2] };
+
+    // Confirm order signature
+    orderObject.isValidSignature = await this._market.isValidSignatureAsync(
+      orderObject,
+      orderHash
+    );
 
     return orderObject;
   }

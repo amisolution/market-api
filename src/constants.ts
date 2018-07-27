@@ -14,11 +14,7 @@ export const constants = {
   MAX_DIGITS_IN_UNSIGNED_256_INT: 78,
   OWNER_ADDRESS: '0x361ffaa1c30267ffb4c74c87fd50751b038d20b4',
   OWNER_PRIVATE_KEY:
-    '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f',
-  AWS_RDS_ENDPOINT: 'marketprotocol.chmykjsh2q5d.us-east-1.rds.amazonaws.com',
-  AWS_RDS_DB: 'order_book',
-  AWS_RDS_USERNAME: 'mpadmin',
-  AWS_RDS_PASSWORD: '6ywmGBo#kzrsRx'
+    '0x442e5aac4e4694bec96aa29d5c103dd843e872d6cb4e6a9e0fd05c1d46eb215f'
 };
 
 export const configTruffle: MARKETProtocolConfig = {

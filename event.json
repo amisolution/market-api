@@ -1,22 +1,23 @@
 {
-    "pathParameters": {
-      "entity": "bitfinex",
-      "entity1": "binance",
-      "entity2": "bitfinex",
-      "proxy": "v1/pubticker/BTCUSD",
-      "proxy_binance1": "api/v3/ticker/price",
-      "proxy_binance2": "api/v1/exchangeInfo",
-      "proxy_bitfinex1": "v1/pubticker/BTCUSD",
-      "proxy_bitfinex2": "v1/symbols_details",
-      "address": "0x8b229978fd8c2740ecb9adce3110953019ff1a06",
-      "address_settled": "0x59c6644d455d333dd327c86c8f61faedfb370ace",
-      "address_invalid": "0x3c60dfa7389e26dc63d699e2be8a90a17b6dbdec",
-      "quantity": 2,
-      "id": 2
-    },
-    "httpMethod": "GET",
-    "queryStringParameters": {},
-    "queryStringParameters_binance1": {"symbol":"EOSETH"},
-    "queryStringParameters_bitfinex1": {},
-    "body": "{\"address\": \"0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef\"}"
+  "pathParameters": {
+    "entity": "bitfinex",
+    "entity1": "binance",
+    "entity2": "bitfinex",
+    "proxy": "v1/pubticker/BTCUSD",
+    "proxy_binance1": "api/v3/ticker/price",
+    "proxy_binance2": "api/v1/exchangeInfo",
+    "proxy_bitfinex1": "v1/pubticker/BTCUSD",
+    "proxy_bitfinex2": "v1/symbols_details",
+    "address": "0x7d87a633c9721faf709849a71840c5662021a124",
+    "address_settled": "0x59c6644d455d333dd327c86c8f61faedfb370ace",
+    "address_invalid": "0x3c60dfa7389e26dc63d699e2be8a90a17b6dbdec",
+    "quantity": 2,
+    "id": 12
+  },
+  "httpMethod": "PUT",
+  "queryStringParameters": {},
+  "queryStringParameters_binance1": {"symbol":"EOSETH"},
+  "queryStringParameters_bitfinex1": {},
+  "body": "{\"isWhitelistedd\": true, \"collateralTokenName\":\"Stable USD\", \"collateralTokenSymbol\":\"USDT\"}",
+  "body_address": "{\"address\": \"0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef\", \"isWhitelisted\": true}"
 }

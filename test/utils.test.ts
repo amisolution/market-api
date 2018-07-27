@@ -35,7 +35,7 @@ describe('utils', () => {
     };
     const eventObjPropEmpty = {
       pathParameters: {
-        entity: ''
+        entity: 1
       },
       queryStringParameters: {}
     };
@@ -63,6 +63,9 @@ describe('utils', () => {
 
     expect(isEventEmpty(eventObjPropEmpty)).toBe(true); // always empty when you don't provide a prop parameter
     expect(isEventEmpty(eventObjPropEmpty, '$.pathParameters')).toBe(false);
+    expect(isEventEmpty(eventObjPropEmpty, '$.pathParameters.entity')).toBe(
+      false
+    );
     expect(isEventEmpty(eventObjPropEmpty, '$.queryStringParameters')).toBe(
       true
     );
@@ -79,5 +82,6 @@ describe('utils', () => {
     expect(camelToSnake('aAaA')).toBe('a_aa_a');
     expect(camelToSnake('toLocaleDateString')).toBe('to_locale_date_string');
     expect(camelToSnake('ABCDE')).toBe('a_b_c_d_e');
+    expect(camelToSnake('a_b_c_d_e')).toBe('a_b_c_d_e');
   });
 });

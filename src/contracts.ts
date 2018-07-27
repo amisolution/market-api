@@ -28,23 +28,36 @@ const allMethods: Handler = async (
     data: ''
   };
 
+  // Generate the DB config object
+  const dbConfig: Object = {
+    host: process.env.RDS_HOST,
+    database: process.env.RDS_DATABASE,
+    user: process.env.RDS_USER,
+    password: process.env.RDS_PASSWORD,
+    port: process.env.RDS_PORT
+  };
+
   // Get the http method and hand off to the Contracts class
-  switch (event.httpMethod) {
-    case 'GET':
-      contracts = new Contracts(event);
+  switch (event.httpMethod.toLowerCase()) {
+    case 'get':
+      contracts = new Contracts(event, dbConfig);
       contractsResult = await contracts.getContractsData();
       break;
-    case 'POST':
-      contracts = new Contracts(event);
+    case 'post':
+      contracts = new Contracts(event, dbConfig);
       contractsResult = await contracts.postContractData();
       break;
-    case 'PUT':
-      contracts = new Contracts(event);
+    case 'put':
+      contracts = new Contracts(event, dbConfig);
       contractsResult = await contracts.putContractData();
       break;
-    case 'DELETE':
-      contracts = new Contracts(event);
+    case 'delete':
+      contracts = new Contracts(event, dbConfig);
       contractsResult = await contracts.deleteContractData();
+      break;
+    case 'head':
+      contracts = new Contracts(event, dbConfig);
+      contractsResult = await contracts.resetContractData();
       break;
     default:
       contractsResult.success = false;

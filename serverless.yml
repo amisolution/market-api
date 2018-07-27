@@ -22,6 +22,7 @@ service:
 plugins:
   - serverless-plugin-typescript
   - serverless-offline
+  - serverless-stage-manager
 
 custom:
   defaultStage: dev
@@ -29,6 +30,30 @@ custom:
     dev: market
     test: market
     prod: market
+  stages:
+    - dev
+    - test
+    - prod
+  rdsHost:
+    dev: ${ssm:/market/rds/marketprotocol/dev_host}
+    test: ${ssm:/market/rds/marketprotocol/test_host}
+    prod: ${ssm:/market/rds/marketprotocol/prod_host}
+  rdsUser:
+    dev: ${ssm:/market/rds/marketprotocol/dev_user}
+    test: ${ssm:/market/rds/marketprotocol/test_user}
+    prod: ${ssm:/market/rds/marketprotocol/prod_user}
+  rdsPassword:
+    dev: ${ssm:/market/rds/marketprotocol/dev_password~true} # get from ssm (secure)
+    test: ${ssm:/market/rds/marketprotocol/test_password~true} # get from ssm (secure)
+    prod: ${ssm:/market/rds/marketprotocol/prod_password~true} # get from ssm (secure)
+  rdsDatabase:
+    dev: ${ssm:/market/rds/marketprotocol/dev_db}
+    test: ${ssm:/market/rds/marketprotocol/test_db}
+    prod: ${ssm:/market/rds/marketprotocol/prod_db}
+  rdsPort:
+    dev: '5432'
+    test: '5432'
+    prod: '5432'
 
 provider:
   name: aws
@@ -36,12 +61,16 @@ provider:
   memorySize: 1024
   timeout: 30
   stage: ${opt:stage, self:custom.defaultStage}
-  profile: ${self:custom.profiles.${self:provider.stage}}
+  profile: market # ${self:custom.profiles.${self:provider.stage}}
   region: us-east-1
+  environment:
+    RDS_HOST: ${self:custom.rdsHost.${self:provider.stage}}
+    RDS_USER: ${self:custom.rdsUser.${self:provider.stage}}
+    RDS_PASSWORD: ${self:custom.rdsPassword.${self:provider.stage}}
+    RDS_DATABASE: ${self:custom.rdsDatabase.${self:provider.stage}}
+    RDS_PORT: ${self:custom.rdsPort.${self:provider.stage}}
+
   # role: arn:aws:iam::YourAccountNumber:role/YourIamRole
-  #environment:
-  #  OWNER_ADDRESS: ''
-  #  OWNER_PRIVATE_KEY: ''
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -80,11 +109,13 @@ package:
     - node_modules/@marketprotocol/abis/**
     - node_modules/@marketprotocol/marketjs/**
     - node_modules/@marketprotocol/types/**
+    - node_modules/aes-js/**
     - node_modules/axios/**
     - node_modules/bignumber.js/**
     - node_modules/bip66/**
     - node_modules/bn.js/**
     - node_modules/brorand/**
+    - node_modules/browserify-sha3/**
     - node_modules/buffer-writer/**
     - node_modules/create-hash/**
     - node_modules/crypto-js/**
@@ -94,7 +125,14 @@ package:
     - node_modules/estraverse/**
     - node_modules/esutils/**
     - node_modules/eth-lib/**
+    - node_modules/ethereumjs-abi/**
     - node_modules/ethereumjs-util/**
+    - node_modules/ethereum-input-data-decoder/**
+    - node_modules/ethers/**
+    - node_modules/ethers-contracts/**
+    - node_modules/ethers-providers/**
+    - node_modules/ethers-utils/**
+    - node_modules/ethers-wallet/**
     - node_modules/ethjs-util/**
     - node_modules/follow-redirects/**
     - node_modules/hash.js/**
@@ -102,11 +140,16 @@ package:
     - node_modules/inherits/**
     - node_modules/is-buffer/**
     - node_modules/is-hex-prefixed/**
+    - node_modules/js-sha3/**
     - node_modules/jsonpath/**
     - node_modules/jsonschema/**
     - node_modules/keccak/**
+    - node_modules/keccakjs/**
     - node_modules/lodash.clonedeep/**
     - node_modules/lodash.isempty/**
+    - node_modules/lodash.isnumber/**
+    - node_modules/lodash.isundefined/**
+    - node_modules/lodash.map/**
     - node_modules/lodash.values/**
     - node_modules/minimalistic-assert/**
     - node_modules/minimalistic-crypto-utils/**
@@ -123,7 +166,9 @@ package:
     - node_modules/postgres-interval/**
     - node_modules/rlp/**
     - node_modules/safe-buffer/**
+    - node_modules/scrypt-js/**
     - node_modules/secp256k1/**
+    - node_modules/setimmediate/**
     - node_modules/split/**
     - node_modules/static-eval/**
     - node_modules/strip-hex-prefix/**
@@ -325,6 +370,26 @@ functions:
       - http:
           path: contracts/{id}
           method: delete
+          cors:
+            origin: '*'
+            headers:
+              - X-Requested-With
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+            maxAge: 86400
+  contractsReset:
+    handler: src/contracts.allMethods
+    name: ${self:service.name}-${self:provider.stage}-contracts-reset
+    description: Reset the development db/table
+    events:
+      - http:
+          path: contracts
+          method: head
           cors:
             origin: '*'
             headers:

@@ -1,5 +1,5 @@
 import { Schema, Validator, ValidatorResult } from 'jsonschema';
-import values from 'lodash.values';
+let values = require('lodash.values');
 
 import { schemas } from './schemas/';
 

@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 let JSONPath = require('jsonpath');
 let isEmpty = require('lodash.isempty');
+let isNumber = require('lodash.isnumber');
 
 /**
  * Checks if the given string is a url.
@@ -42,7 +43,8 @@ const isEventEmpty = function(
     return true;
   }
 
-  return isEmpty(JSONPath.value(event, prop));
+  const value = JSONPath.value(event, prop);
+  return isEmpty(value) && !isNumber(value);
 };
 
 /**

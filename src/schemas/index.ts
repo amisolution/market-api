@@ -1,8 +1,18 @@
-import { ContractSchema } from './ContractSchema';
-import { AddressSchema, NumberSchema } from './ValidationSchema';
+import { ContractNewSchema, ContractUpdateSchema } from './ContractsSchema';
+import {
+  AddressSchema,
+  BooleanSchema,
+  NumberSchema,
+  OracleSchema,
+  StringSchema
+} from './ValidationSchema';
 
 export const schemas = {
   AddressSchema,
+  BooleanSchema,
+  ContractNewSchema,
+  ContractUpdateSchema,
   NumberSchema,
-  ContractSchema
+  OracleSchema,
+  StringSchema
 };

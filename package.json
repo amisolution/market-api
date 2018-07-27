@@ -27,7 +27,7 @@
   },
   "homepage": "https://marketprotocol.io",
   "dependencies": {
-    "@marketprotocol/marketjs": "^0.1.0",
+    "@marketprotocol/marketjs": "^0.1.1",
     "axios": "^0.18.0",
     "bignumber.js": "^7.2.1",
     "crypto-js": "^3.1.9-1",
@@ -37,6 +37,9 @@
     "jsonschema": "^1.2.4",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isempty": "^4.4.0",
+    "lodash.isnumber": "^3.0.3",
+    "lodash.isundefined": "^3.0.1",
+    "lodash.map": "^4.6.0",
     "lodash.values": "^4.3.0",
     "pg": "^7.4.3",
     "web3": "0.20.6"
@@ -60,6 +63,7 @@
     "serverless": "^1.28.0",
     "serverless-offline": "^3.25.6",
     "serverless-plugin-typescript": "^1.1.5",
+    "serverless-stage-manager": "^1.0.5",
     "ts-jest": "^23.0.1",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.13.0",
