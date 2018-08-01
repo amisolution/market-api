@@ -11,13 +11,14 @@
     "address": "0x7d87a633c9721faf709849a71840c5662021a124",
     "address_settled": "0x59c6644d455d333dd327c86c8f61faedfb370ace",
     "address_invalid": "0x3c60dfa7389e26dc63d699e2be8a90a17b6dbdec",
-    "quantity": 2,
-    "id": 12
+    "quantity": 20,
+    "idd": 12
   },
-  "httpMethod": "PUT",
+  "httpMethod": "GET",
   "queryStringParameters": {},
   "queryStringParameters_binance1": {"symbol":"EOSETH"},
   "queryStringParameters_bitfinex1": {},
-  "body": "{\"isWhitelistedd\": true, \"collateralTokenName\":\"Stable USD\", \"collateralTokenSymbol\":\"USDT\"}",
+  "body": "{\"name\":\"BIN_KMDETH_ETH_1532455493986\", \"address\":\"0x7d87a633c9721faf709849a71840c5662021a124\", \"collateral_token_name\":\"Fake Warped ETH\", \"collateral_token_symbol\":\"FWETH\", \"collateral_token_address\":\"0x2021c394e8fce5e56c166601a0428e4611147802\", \"oracle_query\":\"json(https://api.binance.com/api/v3/ticker/price?symbol=KMDETH).price\", \"is_settled\":false, \"collateral_pool_balance\":1000, \"expiration_timestamp\":1564614243, \"price_cap\":477750, \"price_floor\":159250, \"price_decimal_places\":8, \"last_trade_price\":345335, \"last_queried_price\":365424, \"qty_multiplier\":10000000000, \"reference_asset\":\"KMD\", \"is_whitelisted\":true}",
+  "body_put_bad": "{\"isWhitelistedd\": true, \"collateralTokenName\":\"Stable USD\", \"collateralTokenSymbol\":\"USDT\"}",
   "body_address": "{\"address\": \"0xb97b05f8f65733bfffca1ab210d94197dbd3d1ef\", \"isWhitelisted\": true}"
 }

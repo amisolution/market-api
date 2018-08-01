@@ -38,7 +38,8 @@ export const ContractNewSchema = {
     'reference_asset',
     'is_whitelisted'
   ],
-  type: 'object'
+  type: 'object',
+  additionalProperties: false
 };
 
 export const ContractUpdateSchema = {
@@ -62,5 +63,6 @@ export const ContractUpdateSchema = {
     reference_asset: { $ref: '/String' },
     is_whitelisted: { $ref: '/Boolean' }
   },
-  type: 'object'
+  type: 'object',
+  additionalProperties: false
 };

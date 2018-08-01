@@ -1,5 +1,6 @@
 import Contracts from '../src/lib/Contracts';
 import { ContractsResponse } from '../src/types/Responses';
+import AWS = require('aws-sdk');
 
 // types
 import { APIGatewayProxyEvent } from 'aws-lambda';
@@ -17,6 +18,13 @@ const event: APIGatewayProxyEvent = {
 const eventReset: APIGatewayProxyEvent = {
   httpMethod: 'HEAD'
 };
+
+// Grab this from aws-cli parameter store
+// const secretsmanager = new AWS.SecretsManager();
+// secretsmanager.getSecretValue(params, function (err, data) {
+//   if (err) console.log(err, err.stack); // an error occurred
+//   else     console.log(data);           // successful response
+// });
 
 const dbConfig = {
   host: 'marketprotocol.chmykjsh2q5d.us-east-1.rds.amazonaws.com',
